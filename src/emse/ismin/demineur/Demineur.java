@@ -2,8 +2,15 @@ package emse.ismin.demineur;
 
 import javax.swing.*;
 import java.awt.*;
+import java.io.*;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardOpenOption;
 
 public class Demineur extends JFrame {
+
+    private static final String FILENAME = "files/best_scores.txt";
 
     int dim_x = 10;
     int dim_y = 10;
@@ -105,6 +112,7 @@ public class Demineur extends JFrame {
     }
 
     public void gagne() {
+        //updateFile();
         getGUI().stopCompteur();
         JOptionPane.showConfirmDialog(null,
                 "BRAVO ! T'as gagné... \n Score : "+getGUI().getValCompteur(),
@@ -148,4 +156,31 @@ public class Demineur extends JFrame {
         gui.getPanelMines().placeCases(this);
         pack();
     }
+
+    /*
+    public void updateFile(){
+        Path path = Paths.get(FILENAME);
+
+        if (!Files.exists(path)){
+            for (int i=0; i < Level.values().length ; i++){
+                //
+            }
+        }
+
+        try {
+            FileOutputStream file = new FileOutputStream(path);
+            BufferedOutputStream buff = new BufferedOutputStream(file);
+            DataOutputStream data = new DataOutputStream(buff);
+            try {
+                //data.writeInt(gui.getValCompteur());
+                data.writeInt(0);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
+    }
+
+     */
 }

@@ -134,7 +134,9 @@ public class Case extends JPanel implements MouseListener {
     public void mousePressed(MouseEvent e){
         if (e.getButton() == MouseEvent.BUTTON1) {
             left_click = true;
-            demineur.getChamp().nbClick++;
+            if (!demineur.isLost() && !demineur.isWon()) {
+                demineur.getChamp().nbClick++;
+            }
 
         } else if (e.getButton() == MouseEvent.BUTTON3)
             right_click = true;
@@ -144,11 +146,11 @@ public class Case extends JPanel implements MouseListener {
                 demineur.start();
             }
             repaint();
-            if (demineur.getChamp().isMine(x, y)){
+            if (demineur.getChamp().isMine(x, y)) {
                 demineur.setLost(true);
                 demineur.perdu();
             } else {
-                if (demineur.getChamp().isWon()){
+                if (demineur.getChamp().isWon()) {
                     demineur.setWon(true);
                     demineur.gagne();
                 }
