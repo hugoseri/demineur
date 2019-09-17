@@ -31,10 +31,12 @@ public class Case extends JPanel implements MouseListener {
     static final int COULEUR_7 = 0xfea050;
     static final int COULEUR_8 = 0xfea040;
 
-    private boolean perdu = false;
     private boolean left_click = false;
     private boolean right_click = false;
 
+    public boolean isClicked(){
+        return left_click;
+    }
 
     public Case(int x, int y,  Demineur demineur){
         this.demineur = demineur;
@@ -47,9 +49,9 @@ public class Case extends JPanel implements MouseListener {
     public void newPartie(){
         right_click = false;
         left_click = false;
-        perdu = false;
         repaint();
     }
+
 
     @Override
     public void paintComponent(Graphics gc){
@@ -60,7 +62,7 @@ public class Case extends JPanel implements MouseListener {
 
         int x_rect = 1;
         int y_rect = 1;
-        gc.fillRect(x_rect,y_rect, getWidth(), getHeight());
+        //gc.fillRect(x_rect,y_rect, getWidth(), getHeight());
 
         Color bg_color;
         if (left_click) {
@@ -84,9 +86,8 @@ public class Case extends JPanel implements MouseListener {
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
-                perdu = true;
             }
-        } else if (right_click && !perdu){
+        } else if (right_click && !demineur.isLost()) {
             bg_color = new Color(COULEUR_NEUTRE); //couleur background
             gc.setColor(bg_color);
             gc.fillRect(x_rect, y_rect, getWidth(), getHeight());
@@ -98,7 +99,7 @@ public class Case extends JPanel implements MouseListener {
             }
         } else {
             gc.setColor(new Color(COULEUR_NEUTRE)); //couleur background
-            gc.fillRect(x_rect,y_rect, getWidth(), getHeight());
+            gc.fillRect(x_rect, y_rect, getWidth(), getHeight());
         }
     }
 
@@ -127,23 +128,36 @@ public class Case extends JPanel implements MouseListener {
 
     @Override
     public void mouseClicked(MouseEvent e) {
-
     }
 
     @Override
     public void mousePressed(MouseEvent e){
         if (e.getButton() == MouseEvent.BUTTON1) {
             left_click = true;
+            demineur.getChamp().nbClick++;
+
         } else if (e.getButton() == MouseEvent.BUTTON3)
             right_click = true;
-        repaint();
+
+        if (!demineur.isLost() && !demineur.isWon()) {
+            if (!demineur.isStarted()) {
+                demineur.start();
+            }
+            repaint();
+            if (demineur.getChamp().isMine(x, y)){
+                demineur.setLost(true);
+                demineur.perdu();
+            } else {
+                if (demineur.getChamp().isWon()){
+                    demineur.setWon(true);
+                    demineur.gagne();
+                }
+            }
+        }
     }
 
     @Override
     public void mouseReleased(MouseEvent e) {
-        if (perdu){
-            demineur.perdu();
-        }
     }
 
     @Override

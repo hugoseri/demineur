@@ -15,9 +15,9 @@ import static emse.ismin.demineur.Level.HARD;
  */
 public class Champ {
 
-    private static final int NBMINESEASY = 10;
-    private static final int DIMXEASY = 10;
-    private static final int DIMYEASY = 10;
+    private static final int NBMINESEASY = 0;
+    private static final int DIMXEASY = 2;
+    private static final int DIMYEASY = 2;
     private static final int NBMINESMEDIUM = 20;
     private static final int DIMXMEDIUM = 20;
     private static final int DIMYMEDIUM = 20;
@@ -32,6 +32,12 @@ public class Champ {
 
     public Level getLevel() {
         return level;
+    }
+
+    int nbClick;
+
+    public boolean isWon(){
+        return nbClick == getDimX() * getDimY() - nb_mines;
     }
 
     int nb_mines;
@@ -105,6 +111,7 @@ public class Champ {
 
     public void newPartie(Level level){
         this.level = level;
+        nbClick = 0;
         if (level == EASY) {
             initChamp(DIMXEASY, DIMYEASY, NBMINESEASY);
         } else if (level == MEDIUM) {
@@ -117,6 +124,7 @@ public class Champ {
     }
 
     public void renouvelleChamp(){
+        nbClick = 0;
         champVide();
         placeMines(nb_mines);
     }
@@ -133,7 +141,7 @@ public class Champ {
     }
 
     /**
-     * Fonction initialisant le champ et plaçant les mines aléatoirement sur le champ de mines.
+     * Fonction plaçant les mines aléatoirement sur le champ de mines.
      *
      * @param nb_mines Nombre de mines.
      */

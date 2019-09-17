@@ -12,7 +12,10 @@ public class PanelChamp extends JPanel {
     private Case [][] tabCases;
 
     PanelChamp(Demineur main){
+        placeCases(main);
+    }
 
+    public void placeCases(Demineur main){
         setLayout(new GridLayout(main.getChamp().getDimX(), main.getChamp().getDimY()));
 
         tabCases = new Case[main.getChamp().getDimX()][main.getChamp().getDimY()];

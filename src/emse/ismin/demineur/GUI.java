@@ -28,6 +28,23 @@ public class GUI extends JPanel implements ActionListener {
     private JMenuItem mQuitter;
     private JMenuItem mAPropos;
     private JPanel infos;
+    Compteur compteurScore;
+
+    public void startCompteur(){
+        compteurScore.startCompteur();
+    }
+
+    public void stopCompteur(){
+        compteurScore.stopCompteur();
+    }
+
+    public void resetCompteur(){
+        compteurScore.resetCompteur();
+    }
+
+    public int getValCompteur() {
+        return compteurScore.getValCompteur();
+    }
 
     GUI(Demineur main) {
         this.main = main;
@@ -81,6 +98,9 @@ public class GUI extends JPanel implements ActionListener {
         add(infos, BorderLayout.NORTH);
 
         generateScoreLvl();
+
+        compteurScore = new Compteur();
+        infos.add(compteurScore);
 
         //----------------------------------
         //---------- CHAMP MIDDLE-----------
@@ -141,9 +161,10 @@ public class GUI extends JPanel implements ActionListener {
     }
     public void generateChamp(){
         generateScoreLvl();
-        BorderLayout layout = (BorderLayout) getLayout();
-        remove(layout.getLayoutComponent(BorderLayout.CENTER));
-        panelMines = new PanelChamp(main);
-        add(panelMines, BorderLayout.CENTER);
+
+        //BorderLayout layout = (BorderLayout) getLayout();
+        //remove(layout.getLayoutComponent(BorderLayout.CENTER));
+        //panelMines = new PanelChamp(main);
+        //add(panelMines, BorderLayout.CENTER);
     }
 }
