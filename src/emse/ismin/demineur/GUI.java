@@ -50,10 +50,13 @@ public class GUI extends JPanel implements ActionListener {
         this.main = main;
         this.setLayout(new BorderLayout());
 
+        setBackground(new Color(0xEEEEEE));
+
         //----------------------------------
         //---------- MENU TOP---------------
         //----------------------------------
         JMenuBar barreMenu = new JMenuBar();
+        barreMenu.setBackground(new Color(0xDDDDDD));
 
         JMenu menuPartie = new JMenu("Partie");
         barreMenu.add(menuPartie);
@@ -91,16 +94,25 @@ public class GUI extends JPanel implements ActionListener {
         main.setJMenuBar(barreMenu);
 
         infos = new JPanel();
+        infos.setLayout(new BorderLayout());
 
-        JLabel welcome = new JLabel("Bienvenue sur le jeu du démineur !");
-        infos.add(welcome);
+        JLabel welcome = new JLabel("Bienvenue sur le jeu du démineur !", SwingConstants.CENTER);
+        welcome.setFont(new Font("Times New Roman", Font.BOLD, 15));
+        infos.add(welcome, BorderLayout.NORTH);
 
-        add(infos, BorderLayout.NORTH);
-
-        generateScoreLvl();
+        JPanel scoreAndLevel = new JPanel();
+        JLabel score = new JLabel("Mines restantes: " + 0);
+        score.setFont(new Font("Times New Roman", Font.PLAIN, 12));
+        scoreAndLevel.add(score);
+        JLabel niveau = new JLabel("Niveau: " + main.getChamp().getLevel());
+        niveau.setFont(new Font("Times New Roman", Font.PLAIN, 12));
+        scoreAndLevel.add(niveau);
+        infos.add(scoreAndLevel, BorderLayout.CENTER);
 
         compteurScore = new Compteur();
-        infos.add(compteurScore);
+        infos.add(compteurScore, BorderLayout.SOUTH);
+
+        add(infos, BorderLayout.NORTH);
 
         //----------------------------------
         //---------- CHAMP MIDDLE-----------

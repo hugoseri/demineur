@@ -15,9 +15,9 @@ import static emse.ismin.demineur.Level.HARD;
  */
 public class Champ {
 
-    private static final int NBMINESEASY = 0;
-    private static final int DIMXEASY = 2;
-    private static final int DIMYEASY = 2;
+    private static final int NBMINESEASY = 10;
+    private static final int DIMXEASY = 10;
+    private static final int DIMYEASY = 10;
     private static final int NBMINESMEDIUM = 20;
     private static final int DIMXMEDIUM = 20;
     private static final int DIMYMEDIUM = 20;
