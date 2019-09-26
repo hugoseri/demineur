@@ -15,6 +15,11 @@ public class GUI extends JPanel implements ActionListener {
     private Demineur main;
     private JButton boutonQuitter;
     private JButton boutonRelancer;
+    private JButton boutonOnline;
+
+    private JTextArea host;
+    private JTextArea port;
+    private JTextArea pseudo;
 
     public PanelChamp getPanelMines() {
         return panelMines;
@@ -124,18 +129,59 @@ public class GUI extends JPanel implements ActionListener {
         //---------- BOUTONS SOUTH----------
         //----------------------------------
         JPanel south = new JPanel();
+        south.setLayout(new BorderLayout());
 
+        JPanel relancerQuitter = new JPanel();
         boutonRelancer = new JButton("Relancer une partie");
         boutonRelancer.addActionListener(this);
         boutonRelancer.setBackground(new Color(0x7A7A7A));
         boutonRelancer.setForeground(new Color(0xFFFFFF));
-        south.add(boutonRelancer);
+        relancerQuitter.add(boutonRelancer);
 
         boutonQuitter = new JButton("Quitter");
         boutonQuitter.addActionListener(this);
         boutonQuitter.setBackground(new Color(0x7A7A7A));
         boutonQuitter.setForeground(new Color(0xFFFFFF));
-        south.add(boutonQuitter, BorderLayout.SOUTH);
+        relancerQuitter.add(boutonQuitter, BorderLayout.SOUTH);
+
+        south.add(relancerQuitter, BorderLayout.NORTH);
+
+        JPanel online = new JPanel();
+        online.setBorder(BorderFactory.createEmptyBorder());
+        online.setLayout(new BorderLayout());
+        online.setBackground(new Color(0x33A1C9));
+
+        JLabel textOnline = new JLabel("Paramètres jeu en ligne", SwingConstants.CENTER);
+        textOnline.setFont(new Font("Times New Roman", Font.PLAIN, 14));
+        online.add(textOnline, BorderLayout.NORTH);
+
+        boutonOnline = new JButton("Connexion");
+        boutonOnline.setPreferredSize(new Dimension(this.getWidth(), 30));
+        boutonOnline.setBorder(BorderFactory.createEmptyBorder());
+        boutonOnline.addActionListener(this);
+        boutonOnline.setBackground(new Color(0x00688B));
+        boutonOnline.setForeground(new Color(0xFFFFFF));
+
+        JPanel infos_online = new JPanel();
+        infos_online.setPreferredSize(new Dimension(this.getWidth(), 40));
+        infos_online.setBackground(new Color(0x33A1C9));
+
+        infos_online.add(new JLabel("Hôte : "));
+        host = new JTextArea(main.defaultHost);
+        infos_online.add(host);
+
+        infos_online.add(new JLabel("Port : "));
+        port = new JTextArea(String.valueOf(main.defaultPort));
+        infos_online.add(port);
+
+        infos_online.add(new JLabel("Pseudo : "));
+        pseudo = new JTextArea(String.valueOf(main.defaultPseudo));
+        infos_online.add(pseudo);
+
+        online.add(infos_online, BorderLayout.CENTER);
+        online.add(boutonOnline, BorderLayout.SOUTH);
+
+        south.add(online, BorderLayout.SOUTH);
 
         add(south, BorderLayout.SOUTH);
 
@@ -144,23 +190,33 @@ public class GUI extends JPanel implements ActionListener {
     @Override
     public void actionPerformed(ActionEvent e) {
         Object source = e.getSource();
-        if (boutonQuitter.equals(source)) {
+        if (boutonQuitter.equals(source) && !main.connected) {
             main.quit();
-        } else if (mQuitter.equals(source)) {
+        } else if (mQuitter.equals(source) && !main.connected) {
             main.quit();
-        } else if (boutonRelancer.equals(source)) {
+        } else if (boutonRelancer.equals(source) && !main.connected) {
             main.relancer();
+        } else if (boutonOnline.equals(source)) {
+            if (!main.connected) {
+                main.connexionServeur(host.getText(), port.getText(), pseudo.getText());
+                if (main.connected) {
+                    boutonOnline.setText("Déconnexion");
+                }
+            } else {
+                main.deconnexionServeur();
+                boutonOnline.setText("Connexion");
+            }
         } else if (mAPropos.equals(source)) {
             JOptionPane.showConfirmDialog(null,
                     "Créé par Hugo !",
                     "A propos",
                     JOptionPane.DEFAULT_OPTION,
                     JOptionPane.INFORMATION_MESSAGE);
-        } else if (mFacile.equals(source)){
+        } else if (mFacile.equals(source) && !main.connected){
             main.relancer(Level.EASY);
-        } else if (mMoyen.equals(source)){
+        } else if (mMoyen.equals(source) && !main.connected){
             main.relancer(Level.MEDIUM);
-        } else if (mDifficile.equals(source)){
+        } else if (mDifficile.equals(source) && !main.connected){
             main.relancer(Level.HARD);
         }
     }
