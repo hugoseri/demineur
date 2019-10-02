@@ -150,9 +150,9 @@ public class Case extends JPanel implements MouseListener {
     @Override
     public void mousePressed(MouseEvent e){
 
-        if (demineur.connected && !demineur.isLost() && !click){
+        if (demineur.connected && !demineur.isLost() && !demineur.isWon() && !click){
             try {
-                demineur.sortieOnline.writeUTF(x + " " + y);
+                demineur.sortieOnline.writeUTF(Demineur.PLAYED+ " " + x + " " + y);
             } catch (IOException ex) {
                 ex.printStackTrace();
             }

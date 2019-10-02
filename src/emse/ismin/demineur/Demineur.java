@@ -13,16 +13,21 @@ import java.util.logging.SocketHandler;
 
 public class Demineur extends JFrame implements Runnable{
 
-    private static final String FILENAME = "files/best_scores.txt";
 
     Thread threadOnline;
     DataInputStream entreeOnline;
     DataOutputStream sortieOnline;
+    Socket sock;
+    String pseudo;
+
+    private int nbJoueursEnCours = 0;
 
     public static final int MSG = 0;
     public static final int REFUSE = 403;
     public static final int START = 999;
     public static final int FINISH = 888;
+    public static final int QUIT = 777;
+    public static final int PLAYED = 111;
 
     int dim_x = 10;
     int dim_y = 10;
@@ -141,6 +146,26 @@ public class Demineur extends JFrame implements Runnable{
                 JOptionPane.INFORMATION_MESSAGE);
     }
 
+    public void gagne(int score) {
+        //updateFile();
+        getGUI().stopCompteur();
+        JOptionPane.showConfirmDialog(null,
+                "BRAVO ! T'as gagné... \n Score : "+score,
+                "Champion !",
+                JOptionPane.DEFAULT_OPTION,
+                JOptionPane.INFORMATION_MESSAGE);
+    }
+
+    public void serveurDeconnecte(){
+        quitCo();
+        getGUI().stopCompteur();
+        JOptionPane.showConfirmDialog(null,
+                "Désolé, le serveur s'est arrêté :(.",
+                "Serveur déconnecté.",
+                JOptionPane.DEFAULT_OPTION,
+                JOptionPane.INFORMATION_MESSAGE);
+    }
+
     public void relancer() {
         setLost(false);
         setWon(false);
@@ -179,11 +204,12 @@ public class Demineur extends JFrame implements Runnable{
 
     public void connexionServeur(String host, String port, String pseudo){
         try {
-            Socket sock = new Socket(host, Integer.parseInt(port));
+            sock = new Socket(host, Integer.parseInt(port));
             entreeOnline = new DataInputStream(sock.getInputStream());
             sortieOnline = new DataOutputStream(sock.getOutputStream());
             if (pseudo.length() > 0) {
                 sortieOnline.writeUTF(pseudo);
+                this.pseudo = pseudo;
             } else {
                 sortieOnline.writeUTF("Trololol");
             }
@@ -191,8 +217,10 @@ public class Demineur extends JFrame implements Runnable{
 
             if (numJoueur == 403) { // accès refusé
                 popUpconnexionEchoue(host, port);
+                gui.addMsg_online("Connexion à "+host+":"+port+" échouée.");
             } else {
                 popUpconnexionReussie(host, port, numJoueur);
+                gui.addMsg_online("Connexion à "+host+":"+port+" réussie. Vous êtes le joueur " + numJoueur);
                 connected = true;
                 threadOnline = new Thread(this);
                 threadOnline.start();
@@ -200,8 +228,10 @@ public class Demineur extends JFrame implements Runnable{
 
 
         } catch (UnknownHostException e){
+            gui.addMsg_online("Connexion à "+host+":"+port+" échouée.");
             popUpconnexionEchoue(host, port);
         } catch (IOException e){
+            gui.addMsg_online("Connexion à "+host+":"+port+" échouée.");
             popUpconnexionEchoue(host, port);
             e.printStackTrace();
         }
@@ -214,39 +244,52 @@ public class Demineur extends JFrame implements Runnable{
                 String input = entreeOnline.readUTF();
                 String[] cmd = input.split("\\s+");
                 //commande correspondant à une case à afficher
-                System.out.println(input);
-                System.out.println(cmd[0]);
                 if (Integer.parseInt(cmd[0]) < 10) { // info case à afficher
                     int x = Integer.parseInt(cmd[1]);
                     int y = Integer.parseInt(cmd[2]);
                     int etat = Integer.parseInt(cmd[0]);
                     getGUI().getPanelMines().getTabCases()[x][y].showCase(etat);
-                    if (Integer.parseInt(cmd[0]) == 9 && Integer.parseInt(cmd[3]) == numJoueur){
-                        setLost(true);
-                        perdu();
+                    if (Integer.parseInt(cmd[0]) == 9) {
+                        if (Integer.parseInt(cmd[3]) == numJoueur && nbJoueursEnCours != 1) {
+                            setLost(true);
+                            perdu();
+                            gui.addMsg_online("Partie perdue.");
+                        } else if (Integer.parseInt(cmd[3]) != numJoueur){
+                            gui.addMsg_online("Le joueur " + cmd[3] + " a perdu.");
+                        }
+                        nbJoueursEnCours -- ;
                     }
                 } else if (Integer.parseInt(cmd[0]) == START) { // info début partie
-                    relancer(Level.EASY);
+                    relancer(Level.valueOf(cmd[2]));
+                    nbJoueursEnCours = Integer.parseInt(cmd[1]);
+                    gui.addMsg_online("Démarrage partie.");
                     start();
+                } else if (Integer.parseInt((cmd[0])) == QUIT){ //un joueur a quitté la partie
+                    if (Integer.parseInt(cmd[1]) == numJoueur){
+                        if (Integer.parseInt(cmd[1]) == 0){
+                            serveurDeconnecte();
+                            gui.addMsg_online("La partie a été coupé par le serveur.");
+                        } else {
+                            nbJoueursEnCours -- ;
+                            gui.addMsg_online("Le joueur " + cmd[1] + " a quitté la partie.");
+                        }
+                    }
                 } else if (Integer.parseInt((cmd[0])) == FINISH) { //fin de partie
                     if (Integer.parseInt(cmd[1]) == numJoueur){
                         setWon(true);
-                        gagne();
+                        gagne(Integer.parseInt(cmd[2]));
+                        gui.addMsg_online("Bravo! T'as gagné.");
+                    } else {
+                        gui.addMsg_online("Le joueur " + cmd[1] + " a gagné avec un score de " + cmd[2] + ".");
                     }
                 }
             } catch (IOException e) {
                 e.printStackTrace();
             }
         }
-        //boucle infinie tq process non nul
-        //lecture dans in
-        //selon ce qui est lu: affiche mines, numéros, fin de partie
-        //lecture joueur qui a cliqué a tel endroit...
-
     }
 
     private void popUpconnexionReussie(String host, String port, int numJoueur){
-        System.out.println("Connexion réussie à " + host + ":" + port +". Vous êtes le joueur numéro " + numJoueur);
         JOptionPane.showConfirmDialog(null,
                 "Tu es bien connecté sur "+host+":"+port+".\n" +
                         "Tu es le joueur numéro "+numJoueur+".",
@@ -256,7 +299,6 @@ public class Demineur extends JFrame implements Runnable{
     }
 
     private void popUpconnexionEchoue(String host, String port){
-        System.out.println("Connexion échouée à " + host + ":" + port +".");
         JOptionPane.showConfirmDialog(null,
                 "La connexion à "+host+":"+port+" a échoué...",
                 "Connexion échouée",
@@ -265,58 +307,36 @@ public class Demineur extends JFrame implements Runnable{
     }
 
     public void deconnexionServeur(){
-        /*
-        Socket sock = new Socket(host, Integer.parseInt(port));
-        DataInputStream entree = new DataInputStream(sock.getInputStream());
-        DataOutputStream sortie = new DataOutputStream(sock.getOutputStream());
-        if (pseudo.length() > 0) {
-            sortie.writeUTF(pseudo);
-        } else {
-            sortie.writeUTF("Trololol");
-        }
-        int numJoueur = entree.readInt();
-         */
-
-        // à mettre à false si déconnexion réussie uniquement
-        connected = false;
-
-        System.out.println("Déconnexion réussie");
-        JOptionPane.showConfirmDialog(null,
-                "Tu as bien été déconnecté.",
-                "Déconnexion réussie",
-                JOptionPane.DEFAULT_OPTION,
-                JOptionPane.INFORMATION_MESSAGE);
-        /*
-        entree.close();
-        sortie.close();
-        sock.close();
-         */
-    }
-
-    /*
-    public void updateFile(){
-        Path path = Paths.get(FILENAME);
-
-        if (!Files.exists(path)){
-            for (int i=0; i < Level.values().length ; i++){
-                //
-            }
-        }
-
         try {
-            FileOutputStream file = new FileOutputStream(path);
-            BufferedOutputStream buff = new BufferedOutputStream(file);
-            DataOutputStream data = new DataOutputStream(buff);
-            try {
-                //data.writeInt(gui.getValCompteur());
-                data.writeInt(0);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        } catch (FileNotFoundException e) {
+            sortieOnline.writeUTF(String.valueOf(QUIT));
+            gui.addMsg_online("Déconnexion réussie");
+            quitCo();
+            JOptionPane.showConfirmDialog(null,
+                    "Tu as bien été déconnecté.",
+                    "Déconnexion réussie",
+                    JOptionPane.DEFAULT_OPTION,
+                    JOptionPane.INFORMATION_MESSAGE);
+        } catch (IOException e){
+            JOptionPane.showConfirmDialog(null,
+                    "Tu n'as pas été déconnecté.",
+                    "Déconnexion échouée",
+                    JOptionPane.DEFAULT_OPTION,
+                    JOptionPane.ERROR_MESSAGE);
+
             e.printStackTrace();
         }
     }
 
-     */
+    private void quitCo(){
+        connected = false;
+        try {
+            gui.boutonOnline.setText("Connexion");
+            threadOnline = null;
+            entreeOnline.close();
+            sortieOnline.close();
+            sock.close();
+        } catch (IOException e){
+            e.printStackTrace();
+        }
+    }
 }

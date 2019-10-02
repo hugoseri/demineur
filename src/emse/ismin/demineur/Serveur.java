@@ -1,19 +1,25 @@
 package emse.ismin.demineur;
 
 import javax.swing.*;
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
-import java.io.IOException;
+import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 
 public class Serveur extends JFrame implements Runnable {
+
+    private static final String FILENAME = "files/historique.txt";
 
     GUIServeur guiServeur;
     int compteurJoueur = 0;
     private HashSet<DataInputStream> listInputs = new HashSet<DataInputStream>();
     private HashSet<DataOutputStream> listOutputs = new HashSet<DataOutputStream>();
+    private HashSet<Thread> listThreads = new HashSet<Thread>();
 
     private int port = 10000;
 
@@ -21,11 +27,19 @@ public class Serveur extends JFrame implements Runnable {
 
     public boolean partieTerminee = false;
     public boolean partieCommencee = false;
+    public boolean serveurOn = false;
+    public int nbJoueursQuitte = 0;
 
-    private int[] etatJoueurs;
-    final private int PERDU = 0;
-    final private int ENCOURS = 1;
-    final private int GAGNE = 2;
+    private List<Integer> etatJoueurs;
+    //private int[] etatJoueurs;
+    final private int PERDU = -1;
+    final private int QUITTE = -2;
+    final private int ENCOURS = 0;
+    final private int GAGNE = -3;
+
+    private int scoreGagnant = 0;
+
+    private boolean broadcastFinEnvoye = false;
 
     private ServerSocket gestSocket;
 
@@ -51,11 +65,24 @@ public class Serveur extends JFrame implements Runnable {
     }
 
     public void startServeur() {
-        guiServeur.addMsg("Attente des joueurs");
+        guiServeur.addMsg("Démarrage serveur.");
+        guiServeur.addMsg("Attente des joueurs.");
+
+        if (serveurOn) {
+            quit();
+        }
+
+        partieCommencee = false;
+        serveurOn = true;
+        compteurJoueur = 0;
+
+        etatJoueurs = new ArrayList<>();
 
         try {
             gestSocket = new ServerSocket(port);
-            new Thread(this).start();
+            Thread myThread = new Thread(this);
+            myThread.start();
+            listThreads.add(myThread);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -68,7 +95,9 @@ public class Serveur extends JFrame implements Runnable {
             Socket socket = gestSocket.accept();
             guiServeur.addMsg("Nouveau joueur");
 
-            new Thread(this).start();
+            Thread myThread = new Thread(this);
+            myThread.start();
+            listThreads.add(myThread);
 
             //ouverture des streams
             DataInputStream in = new DataInputStream(socket.getInputStream());
@@ -81,33 +110,62 @@ public class Serveur extends JFrame implements Runnable {
 
                 guiServeur.addMsg(nomJoueur + " est connecté.");
 
+                int idJoueur;
+
                 compteurJoueur++;
-                int numJoueur = compteurJoueur;
+
+                idJoueur = compteurJoueur;
+
+                etatJoueurs.add(0);
+
+                boolean joueurConnecte = true;
 
                 //envoi d'une donnée
-                out.writeInt(numJoueur);
+                out.writeInt(idJoueur);
 
                 listInputs.add(in);
                 listOutputs.add(out);
 
-                while (!partieTerminee) {
+                while (joueurConnecte) {
                     try {
-                        if (partieCommencee && aGagne(numJoueur)) {
+                        if (partieCommencee && !partieTerminee && aGagne(idJoueur)) {
                             partieTerminee = true;
-                            etatJoueurs[numJoueur - 1] = GAGNE;
-                            guiServeur.addMsg("Joueur " + numJoueur + " a gagné !");
+                            partieCommencee = false;
+                            scoreGagnant = etatJoueurs.get(idJoueur - 1);
+                            etatJoueurs.set(idJoueur - 1, GAGNE);
+                            //etatJoueurs[idJoueur - 1] = GAGNE;
+                            guiServeur.addMsg(nomJoueur + " a gagné !");
                         } else {
-                            String[] caseCliquee = in.readUTF().split("\\s+");
-                            broadcastCaseCliquee(caseCliquee, numJoueur);
+                            String[] input = in.readUTF().split("\\s+");
+                            if (Integer.parseInt(input[0]) == Demineur.PLAYED) {
+                                if (!champJeu.isMine(Integer.parseInt(input[1]), Integer.parseInt(input[2]))){
+                                    etatJoueurs.set(idJoueur - 1, etatJoueurs.get(idJoueur - 1) + 1);
+                                }
+                                broadcastCaseCliquee(input, idJoueur);
+                            } else if (Integer.parseInt(input[0]) == Demineur.QUIT) {
+                                joueurConnecte = false;
+                                listThreads.remove(myThread);
+                                listInputs.remove(in);
+                                listOutputs.remove(out);
+                                myThread = null;
+                                in.close();
+                                out.close();
+                                socket.close();
+                                broadcastJoueurQuitte(idJoueur);
+                            }
                         }
-                    } catch (IOException e) {
+                        if (!broadcastFinEnvoye && partieTerminee){
+                            broadcastGagnant();
+                        }
+                    } catch (IOException e){
                         e.printStackTrace();
                     }
                 }
-
-                broadcastGagnant();
-
             } else {
+                myThread = null;
+                in.close();
+                out.close();
+                socket.close();
                 out.writeInt(Demineur.REFUSE);
                 guiServeur.addMsg(nomJoueur + " a tenté de rejoindre, trop tard!");
             }
@@ -116,11 +174,38 @@ public class Serveur extends JFrame implements Runnable {
         }
     }
 
-
-    private void broadcastGagnant(){
+    public void broadcastRedemarrageServeur(){
         for (DataOutputStream sortie : listOutputs){
             try {
-                String msg = Demineur.FINISH + " " + getGagnant();
+                String msg = Demineur.QUIT + " 0";
+                guiServeur.addMsg("Message broadcasté : "+msg);
+                sortie.writeUTF(msg);
+            } catch (IOException e){
+                e.printStackTrace();
+            }
+        }
+    }
+
+    private void broadcastJoueurQuitte(int numJoueur) {
+        etatJoueurs.set(numJoueur-1, QUITTE);
+        //etatJoueurs[numJoueur-1] = QUITTE;
+        guiServeur.addMsg("Le joueur " + numJoueur + " a quitté la partie.");
+        for (DataOutputStream sortie : listOutputs){
+            try {
+                String msg = Demineur.QUIT + " " + numJoueur;
+                guiServeur.addMsg("Message broadcasté : "+msg);
+                sortie.writeUTF(msg);
+            } catch (IOException e){
+                e.printStackTrace();
+            }
+        }
+    }
+
+    private void broadcastGagnant(){
+        broadcastFinEnvoye = true;
+        for (DataOutputStream sortie : listOutputs){
+            try {
+                String msg = Demineur.FINISH + " " + getGagnant() + " " + scoreGagnant;
                 guiServeur.addMsg("Message broadcasté : "+msg);
                 sortie.writeUTF(msg);
             } catch (IOException e){
@@ -142,14 +227,15 @@ public class Serveur extends JFrame implements Runnable {
     }
 
     private String codeCase(String[] caseCliquee, int numJoueur){
-        int x = Integer.parseInt(caseCliquee[0]);
-        int y = Integer.parseInt(caseCliquee[1]);
+        int x = Integer.parseInt(caseCliquee[1]);
+        int y = Integer.parseInt(caseCliquee[2]);
         boolean isMine = champJeu.isMine(x, y);
         int nb_mines = 9;
         if (!isMine){
             nb_mines = champJeu.minesAutour(x, y);
         } else {
-            etatJoueurs[numJoueur-1] = PERDU;
+            etatJoueurs.set(numJoueur-1, PERDU);
+            //etatJoueurs[numJoueur-1] = PERDU;
         }
         String msg = (isMine ? 9 : nb_mines) + " " + x + " " + y + " " + numJoueur;
         return msg;
@@ -160,7 +246,8 @@ public class Serveur extends JFrame implements Runnable {
 
         int i=0;
         while(i<compteurJoueur){
-            if (i != numJoueur-1 && etatJoueurs[i] != PERDU){
+            //if (i != numJoueur-1 && etatJoueurs[i] == ENCOURS){
+            if (i != numJoueur-1 && etatJoueurs.get(i) >= ENCOURS){
                 victoire = false;
             }
             i++;
@@ -172,7 +259,8 @@ public class Serveur extends JFrame implements Runnable {
         int numGagnant = 0;
         int i = 0;
         while (numGagnant==0 && i<compteurJoueur){
-            if (etatJoueurs[i] == GAGNE){
+            //if (etatJoueurs[i] == GAGNE){
+            if (etatJoueurs.get(i) == GAGNE){
                 numGagnant = i;
             }
             i++;
@@ -181,6 +269,7 @@ public class Serveur extends JFrame implements Runnable {
     }
 
     private void quit() {
+        partieTerminee = true;
         for (DataInputStream entree : listInputs) {
             try {
                 entree.close();
@@ -188,6 +277,7 @@ public class Serveur extends JFrame implements Runnable {
                 e.printStackTrace();
             }
         }
+        listInputs.clear();
         for (DataOutputStream sortie : listOutputs) {
             try {
                 sortie.close();
@@ -195,6 +285,11 @@ public class Serveur extends JFrame implements Runnable {
                 e.printStackTrace();
             }
         }
+        listOutputs.clear();
+        for (Thread thread : listThreads) {
+            thread = null;
+        }
+        listThreads.clear();
         try {
             gestSocket.close();
         } catch (IOException e) {
@@ -203,22 +298,57 @@ public class Serveur extends JFrame implements Runnable {
     }
 
     public void newGame(){
+        guiServeur.addMsg("Démarrage partie.");
         champJeu = new Champ();
-        champJeu.newPartie(Level.EASY);
+        Level level = (Level) guiServeur.levelChoice.getSelectedItem();
+        champJeu.newPartie(level);
         champJeu.affText();
         partieCommencee = true;
+        partieTerminee = false;
+        broadcastFinEnvoye = false;
+
+        scoreGagnant = 0;
+
         for (DataOutputStream sortie : listOutputs){
             try {
-                sortie.writeUTF(String.valueOf(Demineur.START));
+                sortie.writeUTF(Demineur.START + " " + compteurJoueur + " " + level.name());
             } catch (IOException e){
                 e.printStackTrace();
             }
         }
 
-        etatJoueurs = new int[compteurJoueur];
-        for (int i=0; i<compteurJoueur; i++){
-            etatJoueurs[i] = 1;
+        for (int i=0; i<compteurJoueur; i++) {
+            if (etatJoueurs.get(i) != QUITTE){
+                etatJoueurs.set(i, ENCOURS);
+            }
         }
     }
+
+    /*
+    public void updateFile(){
+        Path path = Paths.get(FILENAME);
+
+        if (!Files.exists(path)){
+            for (int i=0; i < Level.values().length ; i++){
+                //
+            }
+        }
+
+        try {
+            FileOutputStream file = new FileOutputStream(path);
+            BufferedOutputStream buff = new BufferedOutputStream(file);
+            DataOutputStream data = new DataOutputStream(buff);
+            try {
+                //data.writeInt(gui.getValCompteur());
+                data.writeInt(0);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
+    }
+
+     */
 }
 
