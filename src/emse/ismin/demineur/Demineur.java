@@ -2,17 +2,13 @@ package emse.ismin.demineur;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.io.*;
 import java.net.Socket;
 import java.net.UnknownHostException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.nio.file.StandardOpenOption;
-import java.util.logging.SocketHandler;
 
 public class Demineur extends JFrame implements Runnable{
-
 
     Thread threadOnline;
     DataInputStream entreeOnline;
@@ -29,9 +25,6 @@ public class Demineur extends JFrame implements Runnable{
     public static final int QUIT = 777;
     public static final int PLAYED = 111;
 
-    int dim_x = 10;
-    int dim_y = 10;
-    int nb_mines = 5;
     GUI gui;
 
     String[] args;
@@ -43,8 +36,6 @@ public class Demineur extends JFrame implements Runnable{
     private int numJoueur;
 
     public boolean connected = false;
-
-    int score = 0;
 
     Level level = Level.EASY;
 
@@ -82,6 +73,7 @@ public class Demineur extends JFrame implements Runnable{
 
     public Demineur(String[] args) {
 
+
         super("Démineur");
         gui = new GUI(this);
 
@@ -94,6 +86,15 @@ public class Demineur extends JFrame implements Runnable{
 
         setVisible(true);
 
+
+        addWindowListener( new WindowAdapter() {
+            @Override
+            public void windowClosing(WindowEvent we) {
+                if (connected){
+                    deconnexionServeur();
+                }
+            }
+        });
     }
 
     public static void main(String[] args) {
@@ -137,7 +138,6 @@ public class Demineur extends JFrame implements Runnable{
     }
 
     public void gagne() {
-        //updateFile();
         getGUI().stopCompteur();
         JOptionPane.showConfirmDialog(null,
                 "BRAVO ! T'as gagné... \n Score : "+getGUI().getValCompteur(),
@@ -147,7 +147,6 @@ public class Demineur extends JFrame implements Runnable{
     }
 
     public void gagne(int score) {
-        //updateFile();
         getGUI().stopCompteur();
         JOptionPane.showConfirmDialog(null,
                 "BRAVO ! T'as gagné... \n Score : "+score,
@@ -243,12 +242,12 @@ public class Demineur extends JFrame implements Runnable{
             try {
                 String input = entreeOnline.readUTF();
                 String[] cmd = input.split("\\s+");
-                //commande correspondant à une case à afficher
                 if (Integer.parseInt(cmd[0]) < 10) { // info case à afficher
                     int x = Integer.parseInt(cmd[1]);
                     int y = Integer.parseInt(cmd[2]);
                     int etat = Integer.parseInt(cmd[0]);
-                    getGUI().getPanelMines().getTabCases()[x][y].showCase(etat);
+                    Color color = new Color(Integer.parseInt(cmd[4]), Integer.parseInt(cmd[5]), Integer.parseInt(cmd[6]));
+                    getGUI().getPanelMines().getTabCases()[x][y].showCase(etat, color);
                     if (Integer.parseInt(cmd[0]) == 9) {
                         if (Integer.parseInt(cmd[3]) == numJoueur && nbJoueursEnCours != 1) {
                             setLost(true);
@@ -264,8 +263,8 @@ public class Demineur extends JFrame implements Runnable{
                     nbJoueursEnCours = Integer.parseInt(cmd[1]);
                     gui.addMsg_online("Démarrage partie.");
                     start();
-                } else if (Integer.parseInt((cmd[0])) == QUIT){ //un joueur a quitté la partie
-                    if (Integer.parseInt(cmd[1]) == numJoueur){
+                } else if (Integer.parseInt(cmd[0]) == QUIT){ //un joueur a quitté la partie
+                    if (Integer.parseInt(cmd[1]) != numJoueur){
                         if (Integer.parseInt(cmd[1]) == 0){
                             serveurDeconnecte();
                             gui.addMsg_online("La partie a été coupé par le serveur.");

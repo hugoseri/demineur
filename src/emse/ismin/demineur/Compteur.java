@@ -10,9 +10,6 @@ public class Compteur extends JPanel implements Runnable {
     private final static int DIM = 25;
 
     private Thread processScore;
-    private JLabel labelCompteur;
-
-    private Color bg_color;
 
     static final int COULEUR_NEUTRE = 0xdddddd;
     static final int COULEUR_ENCOURS = 0x32CD32;

@@ -4,12 +4,12 @@ import javax.swing.*;
 import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.concurrent.ThreadLocalRandom;
 
 public class Serveur extends JFrame implements Runnable {
 
@@ -28,10 +28,9 @@ public class Serveur extends JFrame implements Runnable {
     public boolean partieTerminee = false;
     public boolean partieCommencee = false;
     public boolean serveurOn = false;
-    public int nbJoueursQuitte = 0;
+    private String startTime;
 
     private List<Integer> etatJoueurs;
-    //private int[] etatJoueurs;
     final private int PERDU = -1;
     final private int QUITTE = -2;
     final private int ENCOURS = 0;
@@ -121,6 +120,11 @@ public class Serveur extends JFrame implements Runnable {
                 boolean joueurConnecte = true;
 
                 //envoi d'une donnée
+
+                int R = ThreadLocalRandom.current().nextInt(150, 256);
+                int G = ThreadLocalRandom.current().nextInt(150, 256);
+                int B = ThreadLocalRandom.current().nextInt(150, 256);
+                String rgb = R + " " + G + " " + B;
                 out.writeInt(idJoueur);
 
                 listInputs.add(in);
@@ -133,15 +137,14 @@ public class Serveur extends JFrame implements Runnable {
                             partieCommencee = false;
                             scoreGagnant = etatJoueurs.get(idJoueur - 1);
                             etatJoueurs.set(idJoueur - 1, GAGNE);
-                            //etatJoueurs[idJoueur - 1] = GAGNE;
                             guiServeur.addMsg(nomJoueur + " a gagné !");
                         } else {
                             String[] input = in.readUTF().split("\\s+");
                             if (Integer.parseInt(input[0]) == Demineur.PLAYED) {
-                                if (!champJeu.isMine(Integer.parseInt(input[1]), Integer.parseInt(input[2]))){
+                                if (!champJeu.isMine(Integer.parseInt(input[1]), Integer.parseInt(input[2]))) {
                                     etatJoueurs.set(idJoueur - 1, etatJoueurs.get(idJoueur - 1) + 1);
                                 }
-                                broadcastCaseCliquee(input, idJoueur);
+                                broadcastCaseCliquee(input, idJoueur, rgb);
                             } else if (Integer.parseInt(input[0]) == Demineur.QUIT) {
                                 joueurConnecte = false;
                                 listThreads.remove(myThread);
@@ -154,10 +157,10 @@ public class Serveur extends JFrame implements Runnable {
                                 broadcastJoueurQuitte(idJoueur);
                             }
                         }
-                        if (!broadcastFinEnvoye && partieTerminee){
+                        if (!broadcastFinEnvoye && partieTerminee) {
                             broadcastGagnant();
                         }
-                    } catch (IOException e){
+                    } catch (IOException e) {
                         e.printStackTrace();
                     }
                 }
@@ -169,85 +172,83 @@ public class Serveur extends JFrame implements Runnable {
                 out.writeInt(Demineur.REFUSE);
                 guiServeur.addMsg(nomJoueur + " a tenté de rejoindre, trop tard!");
             }
-        } catch(IOException e){
+        } catch (IOException e) {
             e.printStackTrace();
         }
     }
 
-    public void broadcastRedemarrageServeur(){
-        for (DataOutputStream sortie : listOutputs){
+    public void broadcastRedemarrageServeur() {
+        for (DataOutputStream sortie : listOutputs) {
             try {
                 String msg = Demineur.QUIT + " 0";
-                guiServeur.addMsg("Message broadcasté : "+msg);
+                guiServeur.addMsg("Message broadcasté : " + msg);
                 sortie.writeUTF(msg);
-            } catch (IOException e){
+            } catch (IOException e) {
                 e.printStackTrace();
             }
         }
     }
 
     private void broadcastJoueurQuitte(int numJoueur) {
-        etatJoueurs.set(numJoueur-1, QUITTE);
-        //etatJoueurs[numJoueur-1] = QUITTE;
+        etatJoueurs.set(numJoueur - 1, QUITTE);
         guiServeur.addMsg("Le joueur " + numJoueur + " a quitté la partie.");
-        for (DataOutputStream sortie : listOutputs){
+        for (DataOutputStream sortie : listOutputs) {
             try {
                 String msg = Demineur.QUIT + " " + numJoueur;
-                guiServeur.addMsg("Message broadcasté : "+msg);
+                guiServeur.addMsg("Message broadcasté : " + msg);
                 sortie.writeUTF(msg);
-            } catch (IOException e){
+            } catch (IOException e) {
                 e.printStackTrace();
             }
         }
     }
 
-    private void broadcastGagnant(){
+    private void broadcastGagnant() {
         broadcastFinEnvoye = true;
-        for (DataOutputStream sortie : listOutputs){
+        updateFile();
+        for (DataOutputStream sortie : listOutputs) {
             try {
                 String msg = Demineur.FINISH + " " + getGagnant() + " " + scoreGagnant;
-                guiServeur.addMsg("Message broadcasté : "+msg);
+                guiServeur.addMsg("Message broadcasté : " + msg);
                 sortie.writeUTF(msg);
-            } catch (IOException e){
+            } catch (IOException e) {
                 e.printStackTrace();
             }
         }
     }
 
-    synchronized private void broadcastCaseCliquee(String[] caseCliquee, int numJoueur){
-        for (DataOutputStream sortie : listOutputs){
+    synchronized private void broadcastCaseCliquee(String[] caseCliquee, int numJoueur, String rgb) {
+        for (DataOutputStream sortie : listOutputs) {
             try {
-                String msg = codeCase(caseCliquee, numJoueur);
-                guiServeur.addMsg("Message broadcasté : "+msg);
+                String msg = codeCase(caseCliquee, numJoueur, rgb);
+                guiServeur.addMsg("Message broadcasté : " + msg);
                 sortie.writeUTF(msg);
-            } catch (IOException e){
+            } catch (IOException e) {
                 e.printStackTrace();
             }
         }
     }
 
-    private String codeCase(String[] caseCliquee, int numJoueur){
+    private String codeCase(String[] caseCliquee, int numJoueur, String rgb) {
         int x = Integer.parseInt(caseCliquee[1]);
         int y = Integer.parseInt(caseCliquee[2]);
         boolean isMine = champJeu.isMine(x, y);
         int nb_mines = 9;
-        if (!isMine){
+        if (!isMine) {
             nb_mines = champJeu.minesAutour(x, y);
         } else {
-            etatJoueurs.set(numJoueur-1, PERDU);
-            //etatJoueurs[numJoueur-1] = PERDU;
+            etatJoueurs.set(numJoueur - 1, PERDU);
         }
-        String msg = (isMine ? 9 : nb_mines) + " " + x + " " + y + " " + numJoueur;
+        String msg = (isMine ? 9 : nb_mines) + " " + x + " " + y + " " + numJoueur + " " + rgb;
         return msg;
     }
 
-    private boolean aGagne(int numJoueur){
+    private boolean aGagne(int numJoueur) {
         boolean victoire = true;
 
-        int i=0;
-        while(i<compteurJoueur){
-            //if (i != numJoueur-1 && etatJoueurs[i] == ENCOURS){
-            if (i != numJoueur-1 && etatJoueurs.get(i) >= ENCOURS){
+        int i = 0;
+        while (i < compteurJoueur) {
+            if (i != numJoueur - 1 && etatJoueurs.get(i) >= ENCOURS) {
                 victoire = false;
             }
             i++;
@@ -255,17 +256,16 @@ public class Serveur extends JFrame implements Runnable {
         return victoire;
     }
 
-    private int getGagnant(){
+    private int getGagnant() {
         int numGagnant = 0;
         int i = 0;
-        while (numGagnant==0 && i<compteurJoueur){
-            //if (etatJoueurs[i] == GAGNE){
-            if (etatJoueurs.get(i) == GAGNE){
+        while (numGagnant == 0 && i < compteurJoueur) {
+            if (etatJoueurs.get(i) == GAGNE) {
                 numGagnant = i;
             }
             i++;
         }
-        return numGagnant+1;
+        return numGagnant + 1;
     }
 
     private void quit() {
@@ -297,7 +297,13 @@ public class Serveur extends JFrame implements Runnable {
         }
     }
 
-    public void newGame(){
+    public void newGame() {
+
+        DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss");
+        LocalDateTime now = LocalDateTime.now();
+
+        startTime = now.format(dtf);
+
         guiServeur.addMsg("Démarrage partie.");
         champJeu = new Champ();
         Level level = (Level) guiServeur.levelChoice.getSelectedItem();
@@ -309,46 +315,39 @@ public class Serveur extends JFrame implements Runnable {
 
         scoreGagnant = 0;
 
-        for (DataOutputStream sortie : listOutputs){
+        for (DataOutputStream sortie : listOutputs) {
             try {
                 sortie.writeUTF(Demineur.START + " " + compteurJoueur + " " + level.name());
-            } catch (IOException e){
+            } catch (IOException e) {
                 e.printStackTrace();
             }
         }
 
-        for (int i=0; i<compteurJoueur; i++) {
-            if (etatJoueurs.get(i) != QUITTE){
+        for (int i = 0; i < compteurJoueur; i++) {
+            if (etatJoueurs.get(i) != QUITTE) {
                 etatJoueurs.set(i, ENCOURS);
             }
         }
     }
 
-    /*
-    public void updateFile(){
-        Path path = Paths.get(FILENAME);
-
-        if (!Files.exists(path)){
-            for (int i=0; i < Level.values().length ; i++){
-                //
-            }
-        }
-
+    public void updateFile() {
         try {
-            FileOutputStream file = new FileOutputStream(path);
-            BufferedOutputStream buff = new BufferedOutputStream(file);
-            DataOutputStream data = new DataOutputStream(buff);
-            try {
-                //data.writeInt(gui.getValCompteur());
-                data.writeInt(0);
-            } catch (IOException e) {
-                e.printStackTrace();
+            BufferedWriter writer = new BufferedWriter(new FileWriter(FILENAME, true));
+
+            writer.write("Partie lancée à " + startTime + "\n");
+            writer.write("Nombre de joueurs: " + compteurJoueur + "\n");
+            int i = 1;
+            for (Integer joueur : etatJoueurs) {
+                if (joueur != QUITTE) {
+                    writer.write("Joueur " + i + " - Resultat : " + (joueur == PERDU ? "Perdu" : "Gagné (score : " + scoreGagnant + ")\n"));
+                    i++;
+                }
             }
-        } catch (FileNotFoundException e) {
+
+            writer.write("\n");
+            writer.close();
+        } catch (IOException e) {
             e.printStackTrace();
         }
     }
-
-     */
 }
-

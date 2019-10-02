@@ -1,0 +1,50 @@
+Partie lancée à 2019/10/02 17:13:07
+Nombre de joueurs: 2
+Joueur 1 - Resultat : Gagné (score : 2)
+Joueur 2 - Resultat : Perdu
+Partie lancée à 2019/10/02 17:16:19
+Nombre de joueurs: 2
+Joueur 1 - Resultat : PerduJoueur 2 - Resultat : Gagné (score : 11)
+
+Partie lancée à 2019/10/02 17:29:50
+Nombre de joueurs: 2
+Joueur 1 - Resultat : PerduJoueur 2 - Resultat : Gagné (score : 2)
+
+Partie lancée à 2019/10/02 17:30:17
+Nombre de joueurs: 2
+Joueur 1 - Resultat : Gagné (score : 1)
+Joueur 2 - Resultat : Perdu
+Partie lancée à 2019/10/02 17:30:30
+Nombre de joueurs: 2
+Joueur 1 - Resultat : PerduJoueur 2 - Resultat : Gagné (score : 15)
+
+Partie lancée à 2019/10/02 17:51:54
+Nombre de joueurs: 1
+Joueur 1 - Resultat : Gagné (score : 1)
+
+Partie lancée à 2019/10/02 17:54:05
+Nombre de joueurs: 2
+Joueur 1 - Resultat : Gagné (score : 1)
+Joueur 2 - Resultat : Perdu
+Partie lancée à 2019/10/02 18:02:06
+Nombre de joueurs: 2
+Joueur 1 - Resultat : PerduJoueur 2 - Resultat : Gagné (score : 1)
+
+Partie lancée à 2019/10/02 18:04:18
+Nombre de joueurs: 2
+Joueur 1 - Resultat : Gagné (score : 0)
+Joueur 2 - Resultat : Perdu
+Partie lancée à 2019/10/02 18:04:49
+Nombre de joueurs: 2
+Joueur 1 - Resultat : Gagné (score : 0)
+Joueur 2 - Resultat : Gagné (score : 0)
+
+Partie lancée à 2019/10/02 18:04:56
+Nombre de joueurs: 2
+Joueur 1 - Resultat : Gagné (score : 5)
+Joueur 2 - Resultat : Perdu
+Partie lancée à 2019/10/02 18:05:09
+Nombre de joueurs: 2
+Joueur 1 - Resultat : Gagné (score : -3)
+Joueur 2 - Resultat : Gagné (score : -3)
+

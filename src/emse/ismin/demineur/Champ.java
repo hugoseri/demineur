@@ -41,7 +41,6 @@ public class Champ {
     }
 
     int nb_mines;
-    int score;
 
     public Champ() {
         this(Level.EASY);
@@ -77,23 +76,6 @@ public class Champ {
      * @return largeur du champ.
      */
     public int getDimY(){ return monChamp[0].length; }
-
-    /**
-     *
-     * @return nombre de mines.
-     */
-    public int getNb_mines() {
-        return nb_mines;
-    }
-    /**
-     *
-     * @param x
-     * @param y
-     * @return
-     */
-    public boolean getValeurCase(int x, int y){
-        return monChamp[x][y];
-    }
 
     /**
      * Fonction initialisant le champ de mines.

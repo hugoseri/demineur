@@ -19,6 +19,8 @@ public class Case extends JPanel implements MouseListener {
     private final int x;
     private final int y;
 
+    private Color color_case;
+
     static final int COULEUR_NEUTRE = 0xAAAAAA;
     static final int COULEUR_MINE = 0xFF5E46;
     static final int COULEUR_0 = 0xFFFFFF;
@@ -60,10 +62,6 @@ public class Case extends JPanel implements MouseListener {
         Font font = new Font("Arial", Font.PLAIN, getHeight()/3);
         gc.setFont(font);
 
-        int x_rect = 1;
-        int y_rect = 1;
-        //gc.fillRect(x_rect,y_rect, getWidth(), getHeight());
-
         if (!demineur.connected) {
             if (click) {
                 boolean isMine = demineur.getChamp().isMine(x, y);
@@ -80,7 +78,7 @@ public class Case extends JPanel implements MouseListener {
             if (type_case == 9){ //mine
                 showMine(gc);
             } else if (type_case < 9){ //pas mine
-                showNotMine(gc, type_case, font);
+                showNotMine(gc, type_case, font, color_case);
             } else { //on ne sait pas, état initial
                 showUnknown(gc);
             }
@@ -110,9 +108,10 @@ public class Case extends JPanel implements MouseListener {
         g.drawString(text, x, y);
     }
 
-    public void showCase(int type){
+    public void showCase(int type, Color color){
         click = true;
         type_case = type;
+        color_case = color;
         repaint();
     }
 
@@ -135,6 +134,15 @@ public class Case extends JPanel implements MouseListener {
 
     public void showNotMine(Graphics gc, int type_case, Font font){
         Color bg_color = new Color(getColor(type_case)); //couleur background
+        gc.setColor(bg_color);
+        gc.fillRect(1, 1, getWidth(), getHeight());
+        gc.setColor(Color.BLACK); //couleur texte
+        if (type_case != 0) {
+            drawCenteredString(gc, String.valueOf(type_case), 1, 1, getWidth(), getHeight(), font);
+        }
+    }
+
+    public void showNotMine(Graphics gc, int type_case, Font font, Color bg_color){
         gc.setColor(bg_color);
         gc.fillRect(1, 1, getWidth(), getHeight());
         gc.setColor(Color.BLACK); //couleur texte

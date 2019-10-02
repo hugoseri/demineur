@@ -3,9 +3,7 @@ package emse.ismin.demineur;
 import javax.swing.*;
 import javax.swing.border.Border;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.KeyEvent;
+import java.awt.event.*;
 
 /**
  * Classe de l'interface graphique du démineur.
@@ -25,7 +23,6 @@ public class GUI extends JPanel implements ActionListener {
         return panelMines;
     }
 
-    //private PanelChamp panelMines;
     public PanelChamp panelMines;
     private JMenuItem mFacile;
     private JMenuItem mMoyen;
@@ -56,6 +53,8 @@ public class GUI extends JPanel implements ActionListener {
     GUI(Demineur main) {
         this.main = main;
         this.setLayout(new BorderLayout());
+
+
 
         setBackground(new Color(0xEEEEEE));
 
