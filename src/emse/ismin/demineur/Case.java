@@ -21,7 +21,7 @@ public class Case extends JPanel implements MouseListener {
 
     private Color color_case;
 
-    static final int COULEUR_NEUTRE = 0xAAAAAA;
+    static final int COULEUR_NEUTRE = 0x00688B;
     static final int COULEUR_MINE = 0xFF5E46;
     static final int COULEUR_0 = 0xFFFFFF;
     static final int COULEUR_1 = 0xdbfbc4;

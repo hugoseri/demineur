@@ -244,3 +244,15 @@ Partie lancée à 2019/10/05 15:43:27
 Nombre de joueurs: 3
 Joueur 1 - Resultat : Gagné (score : 1)
 
+Partie lancée à 2019/10/05 20:16:23
+Nombre de joueurs: 2
+Joueur 1 - Resultat : PerduJoueur 2 - Resultat : Gagné (score : 22)
+
+Partie lancée à 2019/10/05 20:17:14
+Nombre de joueurs: 2
+Joueur 1 - Resultat : Gagné (score : 2)
+
+Partie lancée à 2019/10/05 20:17:28
+Nombre de joueurs: 2
+Joueur 1 - Resultat : Gagné (score : 1)
+

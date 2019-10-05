@@ -1,6 +1,7 @@
 package emse.ismin.demineur;
 
 import javax.swing.*;
+import javax.swing.border.EmptyBorder;
 import java.awt.*;
 import java.awt.event.*;
 import java.util.ArrayList;
@@ -10,6 +11,11 @@ import java.util.List;
  * Classe de l'interface graphique du démineur.
  */
 public class GUI extends JPanel implements ActionListener {
+
+    private final Font title_font = new Font("Roboto", Font.BOLD, 18);
+    private final Font text_font = new Font("Raleway", Font.PLAIN, 12);
+    private final Font button_font = new Font("Raleway", Font.BOLD, 12);
+    private final Font subtitle_font = new Font("Roboto", Font.BOLD, 16);
 
     private Demineur main;
     private JButton boutonQuitter;
@@ -35,7 +41,11 @@ public class GUI extends JPanel implements ActionListener {
     private JScrollPane scrollBar_online;
     private JPanel infos_score;
 
-    private Color color_bg_online = new Color(0x33A1C9);
+    public Color bleu_tres_clair = new Color(0x41B3D9);
+    public Color bleu_clair = new Color(0x00A3D9);
+    public Color bleu_gris = new Color(0x30839F);
+    public Color bleu_fonce = new Color(0x00688B);
+    public Color bleu_nuit = new Color(0X004359);
 
     private List<JTextArea> liste_scores;
 
@@ -61,9 +71,7 @@ public class GUI extends JPanel implements ActionListener {
         this.main = main;
         this.setLayout(new BorderLayout());
 
-
-
-        setBackground(new Color(0xEEEEEE));
+        setBackground(Color.WHITE);
 
         //----------------------------------
         //---------- MENU TOP---------------
@@ -72,29 +80,37 @@ public class GUI extends JPanel implements ActionListener {
         //barre de menu
         {
             JMenuBar barreMenu = new JMenuBar();
-            barreMenu.setBackground(new Color(0xDDDDDD));
+            barreMenu.setBackground(bleu_nuit);
+            barreMenu.setForeground(Color.WHITE);
 
             // menu Partie
             {
                 JMenu menuPartie = new JMenu("Partie");
+                menuPartie.setForeground(Color.WHITE);
+                menuPartie.setFont(text_font);
                 barreMenu.add(menuPartie);
 
                 JMenu mRejouer = new JMenu("Rejouer");
+                mRejouer.setFont(text_font);
                 menuPartie.add(mRejouer);
                 mRejouer.setToolTipText("Rejouer");
 
                 mFacile = new JMenuItem("Facile");
+                mFacile.setFont(text_font);
                 mFacile.addActionListener(this);
                 mRejouer.add(mFacile);
                 mMoyen = new JMenuItem("Moyen");
+                mMoyen.setFont(text_font);
                 mMoyen.addActionListener(this);
                 mRejouer.add(mMoyen);
                 mDifficile = new JMenuItem("Difficile");
+                mDifficile.setFont(text_font);
                 mDifficile.addActionListener(this);
                 mRejouer.add(mDifficile);
 
 
                 mQuitter = new JMenuItem("Quitter", KeyEvent.VK_Q);
+                mQuitter.setFont(text_font);
                 mQuitter.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_Q, ActionEvent.CTRL_MASK));
                 menuPartie.add(mQuitter);
                 mQuitter.addActionListener(this);
@@ -104,8 +120,11 @@ public class GUI extends JPanel implements ActionListener {
 
             { // menu Help
                 JMenu mHelp = new JMenu("Help");
+                mHelp.setForeground(Color.WHITE);
+                mHelp.setFont(text_font);
                 barreMenu.add(mHelp);
                 mAPropos = new JMenuItem("A propos", KeyEvent.VK_H);
+                mAPropos.setFont(text_font);
                 mHelp.add(mAPropos);
                 mAPropos.addActionListener(this);
                 mAPropos.setToolTipText("A propos");
@@ -117,19 +136,17 @@ public class GUI extends JPanel implements ActionListener {
         { // Panel infos générales
             infos = new JPanel();
             infos.setLayout(new BorderLayout());
+            infos.setBackground(Color.WHITE);
 
             JLabel welcome = new JLabel("Bienvenue sur le jeu du démineur !", SwingConstants.CENTER);
-            welcome.setFont(new Font("Times New Roman", Font.BOLD, 15));
+            welcome.setBorder(new EmptyBorder(15, 10, 0, 10));
+            welcome.setFont(title_font);
             infos.add(welcome, BorderLayout.NORTH);
 
-            JPanel scoreAndLevel = new JPanel();
-            JLabel score = new JLabel("Mines restantes: " + 0);
-            score.setFont(new Font("Times New Roman", Font.PLAIN, 12));
-            scoreAndLevel.add(score);
-            JLabel niveau = new JLabel("Niveau: " + main.getChamp().getLevel());
-            niveau.setFont(new Font("Times New Roman", Font.PLAIN, 12));
-            scoreAndLevel.add(niveau);
-            infos.add(scoreAndLevel, BorderLayout.CENTER);
+            JLabel niveau = new JLabel("Niveau: " + main.getChamp().getLevel(), SwingConstants.CENTER);
+            niveau.setBorder(new EmptyBorder(10, 0, 10, 0));
+            niveau.setFont(text_font);
+            infos.add(niveau, BorderLayout.CENTER);
 
             compteurScore = new Compteur();
             infos.add(compteurScore, BorderLayout.SOUTH);
@@ -141,6 +158,8 @@ public class GUI extends JPanel implements ActionListener {
         //---------- CHAMP MIDDLE-----------
         //----------------------------------
         panelMines = new PanelChamp(main);
+        panelMines.setBorder(new EmptyBorder(10, 10, 10, 10));
+        panelMines.setBackground(Color.WHITE);
         add(panelMines, BorderLayout.CENTER);
 
         //----------------------------------
@@ -151,16 +170,20 @@ public class GUI extends JPanel implements ActionListener {
 
         { // bouton relancer et quitter
             JPanel relancerQuitter = new JPanel();
+            relancerQuitter.setBorder(new EmptyBorder(0, 0, 10, 0));
+            relancerQuitter.setBackground(Color.WHITE);
             boutonRelancer = new JButton("Relancer une partie");
+            boutonRelancer.setFont(button_font);
             boutonRelancer.addActionListener(this);
-            boutonRelancer.setBackground(new Color(0x7A7A7A));
-            boutonRelancer.setForeground(new Color(0xFFFFFF));
+            boutonRelancer.setBackground(bleu_fonce);
+            boutonRelancer.setForeground(Color.WHITE);
             relancerQuitter.add(boutonRelancer);
 
             boutonQuitter = new JButton("Quitter");
+            boutonQuitter.setFont(button_font);
             boutonQuitter.addActionListener(this);
-            boutonQuitter.setBackground(new Color(0x7A7A7A));
-            boutonQuitter.setForeground(new Color(0xFFFFFF));
+            boutonQuitter.setBackground(bleu_fonce);
+            boutonQuitter.setForeground(Color.WHITE);
             relancerQuitter.add(boutonQuitter, BorderLayout.SOUTH);
 
             south.add(relancerQuitter, BorderLayout.NORTH);
@@ -168,30 +191,32 @@ public class GUI extends JPanel implements ActionListener {
 
         { // Partie jeu en ligne
             JPanel online = new JPanel();
-            online.setBorder(BorderFactory.createEmptyBorder());
+            online.setBorder(new EmptyBorder(10, 0, 0, 0));
             online.setLayout(new BorderLayout());
             online.setBackground(new Color(0x33A1C9));
 
             JLabel textOnline = new JLabel("Paramètres jeu en ligne", SwingConstants.CENTER);
-            textOnline.setFont(new Font("Times New Roman", Font.PLAIN, 14));
+            textOnline.setBorder(BorderFactory.createEmptyBorder());
+            textOnline.setFont(subtitle_font);
             online.add(textOnline, BorderLayout.NORTH);
 
             boutonOnline = new JButton("Connexion");
             boutonOnline.setPreferredSize(new Dimension(this.getWidth(), 30));
             boutonOnline.setBorder(BorderFactory.createEmptyBorder());
             boutonOnline.addActionListener(this);
-            boutonOnline.setBackground(new Color(0x00688B));
-            boutonOnline.setForeground(new Color(0xFFFFFF));
+            boutonOnline.setBackground(bleu_fonce);
+            boutonOnline.setForeground(Color.WHITE);
 
             { //Panel infos serveur
                 JPanel infos_online = new JPanel();
                 infos_online.setLayout(new BorderLayout());
                 infos_online.setPreferredSize(new Dimension(this.getWidth(), 175));
-                infos_online.setBackground(color_bg_online);
+                infos_online.setBackground(bleu_clair);
 
                 JPanel infos_serveur = new JPanel();
+                infos_serveur.setBorder(new EmptyBorder(10, 0, 0, 0));
                 infos_serveur.setPreferredSize(new Dimension(this.getWidth(), 50));
-                infos_serveur.setBackground(color_bg_online);
+                infos_serveur.setBackground(bleu_clair);
                 infos_serveur.add(new JLabel("Hôte : "));
                 host = new JTextArea(main.defaultHost);
                 infos_serveur.add(host);
@@ -207,11 +232,12 @@ public class GUI extends JPanel implements ActionListener {
                 infos_online.add(infos_serveur, BorderLayout.NORTH);
 
                 infos_score = new JPanel();
-                infos_score.setBackground(color_bg_online);
+                infos_score.setBackground(bleu_clair);
                 infos_score.setLayout(new BorderLayout());
 
                 JLabel text_score = new JLabel("Score joueurs", SwingConstants.CENTER);
-                text_score.setFont(new Font("Times New Roman", Font.PLAIN, 14));
+                text_score.setBorder(new EmptyBorder(10, 0, 10, 0));
+                text_score.setFont(subtitle_font);
                 infos_score.add(text_score, BorderLayout.NORTH);
 
                 infos_online.add(infos_score, BorderLayout.CENTER);
@@ -271,11 +297,11 @@ public class GUI extends JPanel implements ActionListener {
         liste_scores = new ArrayList<>();
 
         JPanel scores = new JPanel();
-        scores.setBackground(color_bg_online);
+        scores.setBackground(bleu_clair);
 
         for (int i = 0; i < nb_joueurs; i++) {
             JPanel score_global = new JPanel();
-            score_global.setBackground(color_bg_online);
+            score_global.setBackground(bleu_clair);
             JLabel score_descr = new JLabel("Joueur "+ (i+1) + " : ");
             JTextArea score_value = new JTextArea("0");
             score_global.add(score_descr);

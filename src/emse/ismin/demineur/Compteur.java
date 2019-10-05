@@ -7,12 +7,15 @@ import static emse.ismin.demineur.Case.drawCenteredString;
 
 public class Compteur extends JPanel implements Runnable {
 
+    public Color bleu_tres_clair = new Color(0x41B3D9);
+    public Color bleu_clair = new Color(0x00A3D9);
+    public Color bleu_gris = new Color(0x30839F);
+    public Color bleu_fonce = new Color(0x00688B);
+    public Color bleu_nuit = new Color(0X004359);
+
     private final static int DIM = 25;
 
     private Thread processScore;
-
-    static final int COULEUR_NEUTRE = 0xdddddd;
-    static final int COULEUR_ENCOURS = 0x32CD32;
 
     public int getValCompteur() {
         return valCompteur;
@@ -28,7 +31,7 @@ public class Compteur extends JPanel implements Runnable {
     public void paintComponent(Graphics gc) {
         super.paintComponent(gc);
 
-        Font font = new Font("Arial", Font.PLAIN, getHeight()/2);
+        Font font = new Font("Raleway", Font.PLAIN, 12);
         gc.setFont(font);
 
         gc.setColor(getColor(valCompteur));
@@ -72,12 +75,12 @@ public class Compteur extends JPanel implements Runnable {
 
 
     private Color getColor(int valeurCompteur){
-        int color;
+        Color color;
         if (valeurCompteur == 0) {
-            color = COULEUR_NEUTRE;
+            color = Color.WHITE;
         } else {
-            color = COULEUR_ENCOURS;
+            color = bleu_tres_clair;
         }
-        return new Color(color);
+        return color;
     }
 }
