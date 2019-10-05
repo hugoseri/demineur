@@ -1,9 +1,10 @@
 package emse.ismin.demineur;
 
 import javax.swing.*;
-import javax.swing.border.Border;
 import java.awt.*;
 import java.awt.event.*;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Classe de l'interface graphique du démineur.
@@ -32,6 +33,12 @@ public class GUI extends JPanel implements ActionListener {
     private JPanel infos;
     private JTextArea infos_jeu;
     private JScrollPane scrollBar_online;
+    private JPanel infos_score;
+
+    private Color color_bg_online = new Color(0x33A1C9);
+
+    private List<JTextArea> liste_scores;
+
     Compteur compteurScore;
 
     public void startCompteur(){
@@ -179,12 +186,12 @@ public class GUI extends JPanel implements ActionListener {
             { //Panel infos serveur
                 JPanel infos_online = new JPanel();
                 infos_online.setLayout(new BorderLayout());
-                infos_online.setPreferredSize(new Dimension(this.getWidth(), 100));
-                infos_online.setBackground(new Color(0x33A1C9));
+                infos_online.setPreferredSize(new Dimension(this.getWidth(), 175));
+                infos_online.setBackground(color_bg_online);
 
                 JPanel infos_serveur = new JPanel();
                 infos_serveur.setPreferredSize(new Dimension(this.getWidth(), 50));
-                infos_serveur.setBackground(new Color(0x33A1C9));
+                infos_serveur.setBackground(color_bg_online);
                 infos_serveur.add(new JLabel("Hôte : "));
                 host = new JTextArea(main.defaultHost);
                 infos_serveur.add(host);
@@ -199,12 +206,22 @@ public class GUI extends JPanel implements ActionListener {
 
                 infos_online.add(infos_serveur, BorderLayout.NORTH);
 
+                infos_score = new JPanel();
+                infos_score.setBackground(color_bg_online);
+                infos_score.setLayout(new BorderLayout());
+
+                JLabel text_score = new JLabel("Score joueurs", SwingConstants.CENTER);
+                text_score.setFont(new Font("Times New Roman", Font.PLAIN, 14));
+                infos_score.add(text_score, BorderLayout.NORTH);
+
+                infos_online.add(infos_score, BorderLayout.CENTER);
+
                 infos_jeu = new JTextArea();
                 infos_jeu.setEditable(false);
                 scrollBar_online = new JScrollPane(infos_jeu);
-                scrollBar_online.setPreferredSize(new Dimension(getWidth(), 100));
+                scrollBar_online.setPreferredSize(new Dimension(getWidth(), 50));
 
-                infos_online.add(scrollBar_online, BorderLayout.CENTER);
+                infos_online.add(scrollBar_online, BorderLayout.SOUTH);
 
                 online.add(infos_online, BorderLayout.CENTER);
             }
@@ -249,20 +266,53 @@ public class GUI extends JPanel implements ActionListener {
         }
     }
 
-    public void generateScoreLvl(){
-        JLabel score = new JLabel("Mines restantes: " + 0);
-        infos.add(score);
-        JLabel niveau = new JLabel("Niveau: " + main.getChamp().getLevel());
-        infos.add(niveau);
-    }
-    public void generateChamp(){
-        generateScoreLvl();
 
-        //BorderLayout layout = (BorderLayout) getLayout();
-        //remove(layout.getLayoutComponent(BorderLayout.CENTER));
-        //panelMines = new PanelChamp(main);
-        //add(panelMines, BorderLayout.CENTER);
+    public void initScore(int nb_joueurs){
+        liste_scores = new ArrayList<>();
+
+        JPanel scores = new JPanel();
+        scores.setBackground(color_bg_online);
+
+        for (int i = 0; i < nb_joueurs; i++) {
+            JPanel score_global = new JPanel();
+            score_global.setBackground(color_bg_online);
+            JLabel score_descr = new JLabel("Joueur "+ (i+1) + " : ");
+            JTextArea score_value = new JTextArea("0");
+            score_global.add(score_descr);
+            score_global.add(score_value);
+            liste_scores.add(score_value);
+            scores.add(score_global);
+        }
+        infos_score.add(scores, BorderLayout.CENTER);
+        main.pack();
     }
+
+    public void updateScore(int nb_joueur, String value, Color color){
+        /*
+        JTextArea new_score = new JTextArea(value);
+        new_score.setBackground(color);
+        liste_scores.set(nb_joueur - 1, new_score);
+        */
+        JTextArea score = liste_scores.get(nb_joueur - 1);
+        score.setBackground(color);
+
+        switch (value){
+            case "-1":
+                value = "Perdu";
+                break;
+            case "-2":
+                value = "Abandon";
+                break;
+            case "-3":
+                value = "Gagné";
+                break;
+            default:
+                break;
+        }
+        score.setText(value);
+        main.pack();
+    }
+
 
     public void addMsg_online(String msg){
         infos_jeu.append(msg+"\n");

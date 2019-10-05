@@ -17,6 +17,7 @@ public class Serveur extends JFrame implements Runnable {
 
     GUIServeur guiServeur;
     int compteurJoueur = 0;
+    private HashSet<Socket> listSockets = new HashSet<Socket>();
     private HashSet<DataInputStream> listInputs = new HashSet<DataInputStream>();
     private HashSet<DataOutputStream> listOutputs = new HashSet<DataOutputStream>();
     private HashSet<Thread> listThreads = new HashSet<Thread>();
@@ -92,6 +93,7 @@ public class Serveur extends JFrame implements Runnable {
         try {
             //attente
             Socket socket = gestSocket.accept();
+            listSockets.add(socket);
             guiServeur.addMsg("Nouveau joueur");
 
             Thread myThread = new Thread(this);
@@ -130,7 +132,7 @@ public class Serveur extends JFrame implements Runnable {
                 listInputs.add(in);
                 listOutputs.add(out);
 
-                while (joueurConnecte) {
+                while (joueurConnecte && serveurOn) {
                     try {
                         if (partieCommencee && !partieTerminee && aGagne(idJoueur)) {
                             partieTerminee = true;
@@ -161,6 +163,7 @@ public class Serveur extends JFrame implements Runnable {
                             broadcastGagnant();
                         }
                     } catch (IOException e) {
+                        joueurConnecte = false;
                         e.printStackTrace();
                     }
                 }
@@ -239,7 +242,7 @@ public class Serveur extends JFrame implements Runnable {
         } else {
             etatJoueurs.set(numJoueur - 1, PERDU);
         }
-        String msg = (isMine ? 9 : nb_mines) + " " + x + " " + y + " " + numJoueur + " " + rgb;
+        String msg = (isMine ? 9 : nb_mines) + " " + x + " " + y + " " + numJoueur + " " + etatJoueurs.get(numJoueur - 1) + " " + rgb;
         return msg;
     }
 
@@ -269,7 +272,15 @@ public class Serveur extends JFrame implements Runnable {
     }
 
     private void quit() {
+        serveurOn = false;
         partieTerminee = true;
+        for (Socket socket : listSockets) {
+            try {
+                socket.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
         for (DataInputStream entree : listInputs) {
             try {
                 entree.close();

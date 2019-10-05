@@ -1,5 +1,6 @@
 package emse.ismin.demineur;
 
+import javax.naming.InsufficientResourcesException;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.WindowAdapter;
@@ -33,7 +34,7 @@ public class Demineur extends JFrame implements Runnable{
     public int defaultPort = 10000;
     public String defaultPseudo = "Michel";
 
-    private int numJoueur;
+    public int numJoueur;
 
     public boolean connected = false;
 
@@ -246,8 +247,9 @@ public class Demineur extends JFrame implements Runnable{
                     int x = Integer.parseInt(cmd[1]);
                     int y = Integer.parseInt(cmd[2]);
                     int etat = Integer.parseInt(cmd[0]);
-                    Color color = new Color(Integer.parseInt(cmd[4]), Integer.parseInt(cmd[5]), Integer.parseInt(cmd[6]));
+                    Color color = new Color(Integer.parseInt(cmd[5]), Integer.parseInt(cmd[6]), Integer.parseInt(cmd[7]));
                     getGUI().getPanelMines().getTabCases()[x][y].showCase(etat, color);
+                    getGUI().updateScore(Integer.parseInt(cmd[3]), cmd[4], color);
                     if (Integer.parseInt(cmd[0]) == 9) {
                         if (Integer.parseInt(cmd[3]) == numJoueur && nbJoueursEnCours != 1) {
                             setLost(true);
@@ -262,6 +264,7 @@ public class Demineur extends JFrame implements Runnable{
                     relancer(Level.valueOf(cmd[2]));
                     nbJoueursEnCours = Integer.parseInt(cmd[1]);
                     gui.addMsg_online("Démarrage partie.");
+                    gui.initScore(nbJoueursEnCours);
                     start();
                 } else if (Integer.parseInt(cmd[0]) == QUIT){ //un joueur a quitté la partie
                     if (Integer.parseInt(cmd[1]) != numJoueur){
@@ -270,6 +273,7 @@ public class Demineur extends JFrame implements Runnable{
                             gui.addMsg_online("La partie a été coupé par le serveur.");
                         } else {
                             nbJoueursEnCours -- ;
+                            getGUI().updateScore(Integer.parseInt(cmd[1]), String.valueOf(QUIT), Color.WHITE);
                             gui.addMsg_online("Le joueur " + cmd[1] + " a quitté la partie.");
                         }
                     }
