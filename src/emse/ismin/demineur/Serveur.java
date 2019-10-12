@@ -94,7 +94,7 @@ public class Serveur extends JFrame implements Runnable {
             //attente
             Socket socket = gestSocket.accept();
             listSockets.add(socket);
-            guiServeur.addMsg("Nouveau joueur");
+            guiServeur.addMsg("Nouveau joueur :");
 
             Thread myThread = new Thread(this);
             myThread.start();
@@ -168,12 +168,12 @@ public class Serveur extends JFrame implements Runnable {
                     }
                 }
             } else {
+                out.writeInt(Demineur.REFUSE);
+                guiServeur.addMsg(nomJoueur + " a tenté de rejoindre, trop tard!");
                 myThread = null;
                 in.close();
                 out.close();
                 socket.close();
-                out.writeInt(Demineur.REFUSE);
-                guiServeur.addMsg(nomJoueur + " a tenté de rejoindre, trop tard!");
             }
         } catch (IOException e) {
             e.printStackTrace();
@@ -319,7 +319,7 @@ public class Serveur extends JFrame implements Runnable {
         champJeu = new Champ();
         Level level = (Level) guiServeur.levelChoice.getSelectedItem();
         champJeu.newPartie(level);
-        champJeu.affText();
+        //champJeu.affText();
         partieCommencee = true;
         partieTerminee = false;
         broadcastFinEnvoye = false;

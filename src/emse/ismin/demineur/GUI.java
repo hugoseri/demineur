@@ -296,6 +296,8 @@ public class GUI extends JPanel implements ActionListener {
     public void initScore(int nb_joueurs){
         liste_scores = new ArrayList<>();
 
+        infos_score.removeAll();
+
         JPanel scores = new JPanel();
         scores.setBackground(bleu_clair);
 
@@ -314,11 +316,6 @@ public class GUI extends JPanel implements ActionListener {
     }
 
     public void updateScore(int nb_joueur, String value, Color color){
-        /*
-        JTextArea new_score = new JTextArea(value);
-        new_score.setBackground(color);
-        liste_scores.set(nb_joueur - 1, new_score);
-        */
         JTextArea score = liste_scores.get(nb_joueur - 1);
         score.setBackground(color);
 
