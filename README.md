@@ -2,6 +2,19 @@
 This is the repository of the minesweeper game project I designed during my Java course at Mines de Saint Etienne.
 The game is designed in French (code comments as well).
 
+## Game overview
+<p align="center">
+  <img src="img/game_overview.png" alt="Offline game overview" height="400"/>
+  <img src="img/game_overview2.png" alt="Offline game overview" height="400"/>
+  <br/>
+  <i>Offline mode</i>
+</p>
+<p align="center">
+  <img src="img/game_overview_online.png" alt="Online game overview" height="500"/>
+  <br/>
+  <i>Online mode</i>
+</p>
+
 ## How the game works
 The minesweeper game is playable in two differents modes: offline and online.   
 
