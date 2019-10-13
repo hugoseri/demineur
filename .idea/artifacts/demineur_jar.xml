@@ -1,0 +1,8 @@
+<component name="ArtifactManager">
+  <artifact type="jar" name="demineur:jar">
+    <output-path>$PROJECT_DIR$/out/artifacts/demineur_jar</output-path>
+    <root id="archive" name="demineur.jar">
+      <element id="module-output" name="demineur" />
+    </root>
+  </artifact>
+</component>

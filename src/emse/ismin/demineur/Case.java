@@ -19,7 +19,9 @@ public class Case extends JPanel implements MouseListener {
     private final int x;
     private final int y;
 
-    static final int COULEUR_NEUTRE = 0xAAAAAA;
+    private Color color_case;
+
+    static final int COULEUR_NEUTRE = 0x00688B;
     static final int COULEUR_MINE = 0xFF5E46;
     static final int COULEUR_0 = 0xFFFFFF;
     static final int COULEUR_1 = 0xdbfbc4;
@@ -31,11 +33,12 @@ public class Case extends JPanel implements MouseListener {
     static final int COULEUR_7 = 0xfea050;
     static final int COULEUR_8 = 0xfea040;
 
-    private boolean left_click = false;
-    private boolean right_click = false;
+    private boolean click = false;
+
+    private int type_case=10;
 
     public boolean isClicked(){
-        return left_click;
+        return click;
     }
 
     public Case(int x, int y,  Demineur demineur){
@@ -47,8 +50,7 @@ public class Case extends JPanel implements MouseListener {
     }
 
     public void newPartie(){
-        right_click = false;
-        left_click = false;
+        click = false;
         repaint();
     }
 
@@ -60,46 +62,26 @@ public class Case extends JPanel implements MouseListener {
         Font font = new Font("Arial", Font.PLAIN, getHeight()/3);
         gc.setFont(font);
 
-        int x_rect = 1;
-        int y_rect = 1;
-        //gc.fillRect(x_rect,y_rect, getWidth(), getHeight());
-
-        Color bg_color;
-        if (left_click) {
-            boolean isMine = demineur.getChamp().isMine(x, y);
-            if (!isMine) {
-                int minesAutour = demineur.getChamp().minesAutour(x, y);
-                bg_color = new Color(getColor(minesAutour)); //couleur background
-                gc.setColor(bg_color);
-                gc.fillRect(x_rect, y_rect, getWidth(), getHeight());
-                gc.setColor(Color.BLACK); //couleur texte
-                if (minesAutour != 0) {
-                    drawCenteredString(gc, String.valueOf(minesAutour), x_rect, y_rect, getWidth(), getHeight(), font);
+        if (!demineur.connected) {
+            if (click) {
+                boolean isMine = demineur.getChamp().isMine(x, y);
+                if (!isMine) {
+                    int minesAutour = demineur.getChamp().minesAutour(x, y);
+                    showNotMine(gc, minesAutour, font);
+                } else {
+                    showMine(gc);
                 }
             } else {
-                bg_color = new Color(COULEUR_MINE); //couleur background
-                gc.setColor(bg_color);
-                gc.fillRect(x_rect, y_rect, getWidth(), getHeight());
-                try {
-                    BufferedImage image = ImageIO.read(new File("img/bombe.png"));
-                    gc.drawImage(image, getWidth() / 4, getHeight() / 4, getWidth() / 2, getHeight() / 2, this);
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
-        } else if (right_click && !demineur.isLost()) {
-            bg_color = new Color(COULEUR_NEUTRE); //couleur background
-            gc.setColor(bg_color);
-            gc.fillRect(x_rect, y_rect, getWidth(), getHeight());
-            try {
-                BufferedImage image = ImageIO.read(new File("img/flag.png"));
-                gc.drawImage(image, getWidth() / 4, getHeight() / 4, getWidth() / 2, getHeight() / 2, this);
-            } catch (IOException e) {
-                e.printStackTrace();
+                showUnknown(gc);
             }
         } else {
-            gc.setColor(new Color(COULEUR_NEUTRE)); //couleur background
-            gc.fillRect(x_rect, y_rect, getWidth(), getHeight());
+            if (type_case == 9){ //mine
+                showMine(gc);
+            } else if (type_case < 9){ //pas mine
+                showNotMine(gc, type_case, font, color_case);
+            } else { //on ne sait pas, état initial
+                showUnknown(gc);
+            }
         }
     }
 
@@ -126,33 +108,82 @@ public class Case extends JPanel implements MouseListener {
         g.drawString(text, x, y);
     }
 
+    public void showCase(int type, Color color){
+        click = true;
+        type_case = type;
+        color_case = color;
+        repaint();
+    }
+
+    private void showUnknown(Graphics gc){
+        gc.setColor(new Color(COULEUR_NEUTRE)); //couleur background
+        gc.fillRect(1, 1, getWidth(), getHeight());
+    }
+
+    private void showMine(Graphics gc){
+        Color bg_color = new Color(COULEUR_MINE); //couleur background
+        gc.setColor(bg_color);
+        gc.fillRect(1, 1, getWidth(), getHeight());
+        try {
+            BufferedImage image = ImageIO.read(new File("img/bombe.png"));
+            gc.drawImage(image, getWidth() / 4, getHeight() / 4, getWidth() / 2, getHeight() / 2, this);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void showNotMine(Graphics gc, int type_case, Font font){
+        Color bg_color = new Color(getColor(type_case)); //couleur background
+        gc.setColor(bg_color);
+        gc.fillRect(1, 1, getWidth(), getHeight());
+        gc.setColor(Color.BLACK); //couleur texte
+        if (type_case != 0) {
+            drawCenteredString(gc, String.valueOf(type_case), 1, 1, getWidth(), getHeight(), font);
+        }
+    }
+
+    public void showNotMine(Graphics gc, int type_case, Font font, Color bg_color){
+        gc.setColor(bg_color);
+        gc.fillRect(1, 1, getWidth(), getHeight());
+        gc.setColor(Color.BLACK); //couleur texte
+        if (type_case != 0) {
+            drawCenteredString(gc, String.valueOf(type_case), 1, 1, getWidth(), getHeight(), font);
+        }
+    }
+
     @Override
     public void mouseClicked(MouseEvent e) {
     }
 
     @Override
     public void mousePressed(MouseEvent e){
-        if (e.getButton() == MouseEvent.BUTTON1) {
-            left_click = true;
+
+        if (demineur.connected && !demineur.isLost() && !demineur.isWon() && !click){
+            try {
+                demineur.sortieOnline.writeUTF(Demineur.PLAYED+ " " + x + " " + y);
+            } catch (IOException ex) {
+                ex.printStackTrace();
+            }
+        } else {
+            if (e.getButton() == MouseEvent.BUTTON1 && !click) {
+                click = true;
+                if (!demineur.isLost() && !demineur.isWon()) {
+                    demineur.getChamp().nbClick++;
+                }
+            }
             if (!demineur.isLost() && !demineur.isWon()) {
-                demineur.getChamp().nbClick++;
-            }
-
-        } else if (e.getButton() == MouseEvent.BUTTON3)
-            right_click = true;
-
-        if (!demineur.isLost() && !demineur.isWon()) {
-            if (!demineur.isStarted()) {
-                demineur.start();
-            }
-            repaint();
-            if (demineur.getChamp().isMine(x, y)) {
-                demineur.setLost(true);
-                demineur.perdu();
-            } else {
-                if (demineur.getChamp().isWon()) {
-                    demineur.setWon(true);
-                    demineur.gagne();
+                if (!demineur.isStarted()) {
+                    demineur.start();
+                }
+                repaint();
+                if (demineur.getChamp().isMine(x, y)) {
+                    demineur.setLost(true);
+                    demineur.perdu();
+                } else {
+                    if (demineur.getChamp().isWon()) {
+                        demineur.setWon(true);
+                        demineur.gagne();
+                    }
                 }
             }
         }
