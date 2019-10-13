@@ -1,6 +1,8 @@
 package emse.ismin.demineur;
 
 import javax.swing.*;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
@@ -59,6 +61,19 @@ public class Serveur extends JFrame implements Runnable {
         setVisible(true);
 
         startServeur();
+
+        /**
+         * Fonction pour se déconnecter du serveur quand on ferme la fenêtre.
+         */
+        addWindowListener(new WindowAdapter() {
+            @Override
+            public void windowClosing(WindowEvent we) {
+                if (serveurOn) {
+                    broadcastRedemarrageServeur();
+                    quit();
+                }
+            }
+        });
     }
 
     public static void main(String[] args) {
@@ -198,7 +213,7 @@ public class Serveur extends JFrame implements Runnable {
         for (DataOutputStream sortie : listOutputs) {
             try {
                 String msg = Demineur.QUIT + " 0";
-                guiServeur.addMsg("Message broadcasté : " + msg);
+                //guiServeur.addMsg("Message broadcasté : " + msg);
                 sortie.writeUTF(msg);
             } catch (IOException e) {
                 e.printStackTrace();
@@ -217,7 +232,7 @@ public class Serveur extends JFrame implements Runnable {
         for (DataOutputStream sortie : listOutputs) {
             try {
                 String msg = Demineur.QUIT + " " + numJoueur;
-                guiServeur.addMsg("Message broadcasté : " + msg);
+                //guiServeur.addMsg("Message broadcasté : " + msg);
                 sortie.writeUTF(msg);
             } catch (IOException e) {
                 e.printStackTrace();
@@ -234,7 +249,7 @@ public class Serveur extends JFrame implements Runnable {
         for (DataOutputStream sortie : listOutputs) {
             try {
                 String msg = Demineur.FINISH + " " + getGagnant() + " " + scoreGagnant;
-                guiServeur.addMsg("Message broadcasté : " + msg);
+                //guiServeur.addMsg("Message broadcasté : " + msg);
                 sortie.writeUTF(msg);
             } catch (IOException e) {
                 e.printStackTrace();
@@ -253,7 +268,7 @@ public class Serveur extends JFrame implements Runnable {
         for (DataOutputStream sortie : listOutputs) {
             try {
                 String msg = codeCase(caseCliquee, numJoueur, rgb);
-                guiServeur.addMsg("Message broadcasté : " + msg);
+                //guiServeur.addMsg("Message broadcasté : " + msg);
                 sortie.writeUTF(msg);
             } catch (IOException e) {
                 e.printStackTrace();
