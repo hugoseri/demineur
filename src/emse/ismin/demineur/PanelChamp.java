@@ -9,17 +9,18 @@ public class PanelChamp extends JPanel {
         return tabCases;
     }
 
-    private Case [][] tabCases;
+    private Case[][] tabCases;
 
-    PanelChamp(Demineur main){
+    PanelChamp(Demineur main) {
         placeCases(main);
     }
 
     /**
      * Fonction permettant de remplir le champ de cases.
+     *
      * @param main
      */
-    public void placeCases(Demineur main){
+    public void placeCases(Demineur main) {
         setLayout(new GridLayout(main.getChamp().getDimX(), main.getChamp().getDimY()));
 
         tabCases = new Case[main.getChamp().getDimX()][main.getChamp().getDimY()];

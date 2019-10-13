@@ -23,8 +23,8 @@ public class Compteur extends JPanel implements Runnable {
 
     private int valCompteur;
 
-    Compteur(){
-        setPreferredSize(new Dimension(DIM*6, DIM));
+    Compteur() {
+        setPreferredSize(new Dimension(DIM * 6, DIM));
     }
 
     @Override
@@ -36,16 +36,16 @@ public class Compteur extends JPanel implements Runnable {
 
         gc.setColor(getColor(valCompteur));
 
-        gc.fillRect(0,0, getWidth(), getHeight());
+        gc.fillRect(0, 0, getWidth(), getHeight());
         gc.setColor(Color.BLACK);
 
-        drawCenteredString(gc, "Temps écoulé : "+String.valueOf(valCompteur), 0, 0, getWidth(), getHeight(), font);
+        drawCenteredString(gc, "Temps écoulé : " + String.valueOf(valCompteur), 0, 0, getWidth(), getHeight(), font);
     }
 
     /**
      * Fonction initialisant et déclenchant le compteur.
      */
-    public void startCompteur(){
+    public void startCompteur() {
         valCompteur = 0;
 
         processScore = new Thread(this);
@@ -55,14 +55,14 @@ public class Compteur extends JPanel implements Runnable {
     /**
      * Fonction arrêtant le compteur.
      */
-    public void stopCompteur(){
+    public void stopCompteur() {
         processScore = null;
     }
 
     /**
      * Fonction réinitialisant le compteur.
      */
-    public void resetCompteur(){
+    public void resetCompteur() {
         valCompteur = 0;
         repaint();
     }
@@ -71,12 +71,12 @@ public class Compteur extends JPanel implements Runnable {
      * Fonction incrémentant le compteur chaque seconde.
      */
     @Override
-    public void run(){
-        while (processScore != null){
+    public void run() {
+        while (processScore != null) {
             try {
                 processScore.sleep(1000);
-                if (processScore !=null) { //peut passer null s'il y a un stopCompteur pendant sleep
-                    valCompteur+=1;
+                if (processScore != null) { //peut passer null s'il y a un stopCompteur pendant sleep
+                    valCompteur += 1;
                     repaint();
                 }
             } catch (InterruptedException e) {
@@ -87,10 +87,11 @@ public class Compteur extends JPanel implements Runnable {
 
     /**
      * Fonction de gestion de la couleur de fond du compteur en fonction de sa valeur.
+     *
      * @param valeurCompteur valeur du compteur.
      * @return color couleur du fond du compteur.
      */
-    private Color getColor(int valeurCompteur){
+    private Color getColor(int valeurCompteur) {
         Color color;
         if (valeurCompteur == 0) {
             color = Color.WHITE;

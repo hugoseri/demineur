@@ -10,8 +10,7 @@ import java.net.Socket;
 import java.net.UnknownHostException;
 
 /**
- * Demineur class
- * Manage the whole demineur player game
+ * Class démineur permettant de gérer l'ensemble du jeu de démineur.
  */
 public class Demineur extends JFrame implements Runnable {
 
@@ -346,8 +345,9 @@ public class Demineur extends JFrame implements Runnable {
 
     /**
      * Fonction déclenchée quand la connexion au serveur a réussi.
-     * @param host Adresse du serveur.
-     * @param port Port du serveur.
+     *
+     * @param host      Adresse du serveur.
+     * @param port      Port du serveur.
      * @param numJoueur Numéro du joueur attribué par le serveur.
      */
     private void popUpconnexionReussie(String host, String port, int numJoueur) {
@@ -361,6 +361,7 @@ public class Demineur extends JFrame implements Runnable {
 
     /**
      * Fonction déclenchée quand la connexion au serveur a échoué".
+     *
      * @param host Adresse du serveur.
      * @param port Port du serveur.
      */
@@ -397,7 +398,7 @@ public class Demineur extends JFrame implements Runnable {
     }
 
     /**
-     * Fonction déclenchant après la déconnexion d'un serveur,
+     * Fonction déclenchée après la déconnexion d'un serveur,
      * permettant de détruire les canaux de communication audit serveur.
      */
     private void quitCo() {

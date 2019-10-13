@@ -35,13 +35,13 @@ public class Case extends JPanel implements MouseListener {
 
     private boolean click = false;
 
-    private int type_case=10;
+    private int type_case = 10;
 
-    public boolean isClicked(){
+    public boolean isClicked() {
         return click;
     }
 
-    public Case(int x, int y,  Demineur demineur){
+    public Case(int x, int y, Demineur demineur) {
         this.demineur = demineur;
         this.x = x;
         this.y = y;
@@ -49,17 +49,17 @@ public class Case extends JPanel implements MouseListener {
         addMouseListener(this);
     }
 
-    public void newPartie(){
+    public void newPartie() {
         click = false;
         repaint();
     }
 
 
     @Override
-    public void paintComponent(Graphics gc){
+    public void paintComponent(Graphics gc) {
         super.paintComponent(gc);
 
-        Font font = new Font("Arial", Font.PLAIN, getHeight()/3);
+        Font font = new Font("Arial", Font.PLAIN, getHeight() / 3);
         gc.setFont(font);
 
         if (!demineur.connected) {
@@ -75,9 +75,9 @@ public class Case extends JPanel implements MouseListener {
                 showUnknown(gc);
             }
         } else {
-            if (type_case == 9){ //mine
+            if (type_case == 9) { //mine
                 showMine(gc);
-            } else if (type_case < 9){ //pas mine
+            } else if (type_case < 9) { //pas mine
                 showNotMine(gc, type_case, font, color_case);
             } else { //on ne sait pas, état initial
                 showUnknown(gc);
@@ -87,6 +87,7 @@ public class Case extends JPanel implements MouseListener {
 
     /**
      * Draw a centered string.
+     *
      * @param g
      * @param text
      * @param rect_x
@@ -108,19 +109,19 @@ public class Case extends JPanel implements MouseListener {
         g.drawString(text, x, y);
     }
 
-    public void showCase(int type, Color color){
+    public void showCase(int type, Color color) {
         click = true;
         type_case = type;
         color_case = color;
         repaint();
     }
 
-    private void showUnknown(Graphics gc){
+    private void showUnknown(Graphics gc) {
         gc.setColor(new Color(COULEUR_NEUTRE)); //couleur background
         gc.fillRect(1, 1, getWidth(), getHeight());
     }
 
-    private void showMine(Graphics gc){
+    private void showMine(Graphics gc) {
         Color bg_color = new Color(COULEUR_MINE); //couleur background
         gc.setColor(bg_color);
         gc.fillRect(1, 1, getWidth(), getHeight());
@@ -132,7 +133,7 @@ public class Case extends JPanel implements MouseListener {
         }
     }
 
-    public void showNotMine(Graphics gc, int type_case, Font font){
+    public void showNotMine(Graphics gc, int type_case, Font font) {
         Color bg_color = new Color(getColor(type_case)); //couleur background
         gc.setColor(bg_color);
         gc.fillRect(1, 1, getWidth(), getHeight());
@@ -142,7 +143,7 @@ public class Case extends JPanel implements MouseListener {
         }
     }
 
-    public void showNotMine(Graphics gc, int type_case, Font font, Color bg_color){
+    public void showNotMine(Graphics gc, int type_case, Font font, Color bg_color) {
         gc.setColor(bg_color);
         gc.fillRect(1, 1, getWidth(), getHeight());
         gc.setColor(Color.BLACK); //couleur texte
@@ -156,11 +157,11 @@ public class Case extends JPanel implements MouseListener {
     }
 
     @Override
-    public void mousePressed(MouseEvent e){
+    public void mousePressed(MouseEvent e) {
 
-        if (demineur.connected && !demineur.isLost() && !demineur.isWon() && !click){
+        if (demineur.connected && !demineur.isLost() && !demineur.isWon() && !click) {
             try {
-                demineur.sortieOnline.writeUTF(Demineur.PLAYED+ " " + x + " " + y);
+                demineur.sortieOnline.writeUTF(Demineur.PLAYED + " " + x + " " + y);
             } catch (IOException ex) {
                 ex.printStackTrace();
             }
@@ -202,9 +203,9 @@ public class Case extends JPanel implements MouseListener {
     public void mouseExited(MouseEvent e) {
     }
 
-    private int getColor(int valeurCase){
+    private int getColor(int valeurCase) {
         int color;
-        switch(valeurCase){
+        switch (valeurCase) {
             case 0:
                 color = COULEUR_0;
                 break;

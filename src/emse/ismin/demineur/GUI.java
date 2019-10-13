@@ -351,6 +351,7 @@ public class GUI extends JPanel implements ActionListener {
 
     /**
      * Fonction permettant d'ajouter un message dans la partie dialogue.
+     *
      * @param msg Message à ajouter.
      */
     public void addMsg_online(String msg){

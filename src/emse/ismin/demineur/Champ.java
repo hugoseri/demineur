@@ -36,7 +36,7 @@ public class Champ {
 
     int nbClick;
 
-    public boolean isWon(){
+    public boolean isWon() {
         return nbClick == getDimX() * getDimY() - nb_mines;
     }
 
@@ -46,14 +46,18 @@ public class Champ {
         this(Level.EASY);
     }
 
-    /** Constructeur avec un niveau en paramètre.
+    /**
+     * Constructeur avec un niveau en paramètre.
+     *
      * @param level Level.EASY, Level.MEDIUM ou Level.HARD.
      */
     public Champ(Level level) {
         newPartie(level);
     }
 
-    /** Constructeur avec des dimensions et nombre de mines en paramètres.
+    /**
+     * Constructeur avec des dimensions et nombre de mines en paramètres.
+     *
      * @param dim_x    dimension horizontale.
      * @param dim_y    dimension verticale.
      * @param nb_mines nombre de mines.
@@ -64,18 +68,18 @@ public class Champ {
     }
 
     /**
-     *
      * @return longueur du champ.
      */
-    public int getDimX(){
+    public int getDimX() {
         return monChamp.length;
     }
 
     /**
-     *
      * @return largeur du champ.
      */
-    public int getDimY(){ return monChamp[0].length; }
+    public int getDimY() {
+        return monChamp[0].length;
+    }
 
     /**
      * Fonction initialisant le champ de mines.
@@ -93,9 +97,10 @@ public class Champ {
 
     /**
      * Fonction initialisant le champ selon le niveau renseigné.
+     *
      * @param level niveau de l partie.
      */
-    public void newPartie(Level level){
+    public void newPartie(Level level) {
         this.level = level;
         nbClick = 0;
         if (level == EASY) {
@@ -112,7 +117,7 @@ public class Champ {
     /**
      * Fonction réinitialisant le champ.
      */
-    public void renouvelleChamp(){
+    public void renouvelleChamp() {
         nbClick = 0;
         champVide();
         placeMines(nb_mines);
@@ -175,11 +180,12 @@ public class Champ {
 
     /**
      * Fonction retournant si une case est une mine.
+     *
      * @param x
      * @param y
      * @return booléen true or false.
      */
-    public boolean isMine(int x, int y){
+    public boolean isMine(int x, int y) {
         return monChamp[x][y];
     }
 
