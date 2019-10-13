@@ -9,7 +9,11 @@ import java.io.*;
 import java.net.Socket;
 import java.net.UnknownHostException;
 
-public class Demineur extends JFrame implements Runnable{
+/**
+ * Demineur class
+ * Manage the whole demineur player game
+ */
+public class Demineur extends JFrame implements Runnable {
 
     Thread threadOnline;
     DataInputStream entreeOnline;
@@ -43,26 +47,32 @@ public class Demineur extends JFrame implements Runnable{
     private Champ champ = new Champ(level);
 
     private boolean started = false;
-    public boolean isStarted(){
+
+    public boolean isStarted() {
         return started;
     }
-    public void setStarted(boolean started){
+
+    public void setStarted(boolean started) {
         this.started = started;
     }
 
     private boolean lost = false;
-    public boolean isLost(){
+
+    public boolean isLost() {
         return lost;
     }
-    public void setLost(boolean lost){
+
+    public void setLost(boolean lost) {
         this.lost = lost;
     }
 
     private boolean won = false;
-    public boolean isWon(){
+
+    public boolean isWon() {
         return won;
     }
-    public void setWon(boolean won){
+
+    public void setWon(boolean won) {
         this.won = won;
     }
 
@@ -70,7 +80,9 @@ public class Demineur extends JFrame implements Runnable{
         return champ;
     }
 
-    public GUI getGUI() { return gui;}
+    public GUI getGUI() {
+        return gui;
+    }
 
     public Demineur(String[] args) {
 
@@ -87,17 +99,24 @@ public class Demineur extends JFrame implements Runnable{
 
         setVisible(true);
 
-
-        addWindowListener( new WindowAdapter() {
+        /**
+         * Fonction pour se déconnecter du serveur quand on ferme la fenêtre.
+         */
+        addWindowListener(new WindowAdapter() {
             @Override
             public void windowClosing(WindowEvent we) {
-                if (connected){
+                if (connected) {
                     deconnexionServeur();
                 }
             }
         });
     }
 
+    /**
+     * Fonction main.
+     *
+     * @param args
+     */
     public static void main(String[] args) {
         System.out.println("");
         System.out.println("Lancement de l'interface du démineur.");
@@ -106,17 +125,26 @@ public class Demineur extends JFrame implements Runnable{
         new Demineur(args);
     }
 
-    public void start(){
+    /**
+     * Fonction démarrant une nouvelle partie (déclenchée quand un joueur clique sur une case ou par le serveur).
+     */
+    public void start() {
         setStarted(true);
         getGUI().startCompteur();
     }
 
-    public void resetCompteur(){
+    /**
+     * Fonction réinitialisant le compteur de temps de jeu.
+     */
+    public void resetCompteur() {
         getGUI().stopCompteur();
         getGUI().resetCompteur();
         setStarted(false);
     }
 
+    /**
+     * Fonction déclenchée quand un joueur veut quitter le jeu.
+     */
     public void quit() {
         int rep = JOptionPane.showConfirmDialog(null,
                 "Etes-vous sur de vouloir quitter le jeu ?",
@@ -129,6 +157,9 @@ public class Demineur extends JFrame implements Runnable{
         }
     }
 
+    /**
+     * Fonction déclenchée quand un joueur perd une partie.
+     */
     public void perdu() {
         getGUI().stopCompteur();
         JOptionPane.showConfirmDialog(null,
@@ -138,25 +169,36 @@ public class Demineur extends JFrame implements Runnable{
                 JOptionPane.INFORMATION_MESSAGE);
     }
 
+    /**
+     * Fonction déclenchée quand un joueur gagne une partie hors ligne.
+     */
     public void gagne() {
         getGUI().stopCompteur();
         JOptionPane.showConfirmDialog(null,
-                "BRAVO ! T'as gagné... \n Score : "+getGUI().getValCompteur(),
+                "BRAVO ! T'as gagné... \n Score : " + getGUI().getValCompteur(),
                 "Champion !",
                 JOptionPane.DEFAULT_OPTION,
                 JOptionPane.INFORMATION_MESSAGE);
     }
 
+    /**
+     * Fonction déclenchée quand un joueur gagne une partie en ligne.
+     *
+     * @param score Le score obtenu.
+     */
     public void gagne(int score) {
         getGUI().stopCompteur();
         JOptionPane.showConfirmDialog(null,
-                "BRAVO ! T'as gagné... \n Score : "+score,
+                "BRAVO ! T'as gagné... \n Score : " + score,
                 "Champion !",
                 JOptionPane.DEFAULT_OPTION,
                 JOptionPane.INFORMATION_MESSAGE);
     }
 
-    public void serveurDeconnecte(){
+    /**
+     * Fonction déclenchée quand le joueur est deconnecté du serveur.
+     */
+    public void serveurDeconnecte() {
         quitCo();
         getGUI().stopCompteur();
         JOptionPane.showConfirmDialog(null,
@@ -166,6 +208,9 @@ public class Demineur extends JFrame implements Runnable{
                 JOptionPane.INFORMATION_MESSAGE);
     }
 
+    /**
+     * Fonction permettant de préparer une nouvelle partie.
+     */
     public void relancer() {
         setLost(false);
         setWon(false);
@@ -174,35 +219,36 @@ public class Demineur extends JFrame implements Runnable{
         newPartie();
     }
 
+    /**
+     * Fonction permettant de préparer une nouvelle partie avec un niveau spécifié.
+     *
+     * @param level niveau de la partie.
+     */
     public void relancer(Level level) {
         setLost(false);
         setWon(false);
         resetCompteur();
         getChamp().newPartie(level);
-        newPartie(level);
+        newPartie();
     }
 
     /**
-     * Demande à toutes les cases de se réinitialiser.
+     * Fonction réinitialisant toutes les cases du jeu.
      */
     private void newPartie() {
-        for (int i = 0; i < getChamp().getDimX(); i++) {
-            for (int j = 0; j < getChamp().getDimY(); j++) {
-                gui.getPanelMines().getTabCases()[i][j].newPartie();
-            }
-        }
-    }
-
-    /**
-     * Demande à toutes les cases de se réinitialiser.
-     */
-    private void newPartie(Level level) {
         gui.getPanelMines().removeAll();
         gui.getPanelMines().placeCases(this);
         pack();
     }
 
-    public void connexionServeur(String host, String port, String pseudo){
+    /**
+     * Fonction permettant de se connecter à un serveur.
+     *
+     * @param host   Adresse du serveur.
+     * @param port   Port du serveur.
+     * @param pseudo Pseudo du joueur souhaitant se connecter.
+     */
+    public void connexionServeur(String host, String port, String pseudo) {
         try {
             sock = new Socket(host, Integer.parseInt(port));
             entreeOnline = new DataInputStream(sock.getInputStream());
@@ -217,32 +263,34 @@ public class Demineur extends JFrame implements Runnable{
 
             if (numJoueur == 403) { // accès refusé
                 popUpconnexionEchoue(host, port);
-                gui.addMsg_online("Connexion à "+host+":"+port+" échouée.");
+                gui.addMsg_online("Connexion à " + host + ":" + port + " échouée.");
             } else {
                 popUpconnexionReussie(host, port, numJoueur);
-                gui.addMsg_online("Connexion à "+host+":"+port+" réussie. Vous êtes le joueur " + numJoueur);
+                gui.addMsg_online("Connexion à " + host + ":" + port + " réussie. Vous êtes le joueur " + numJoueur);
                 connected = true;
                 threadOnline = new Thread(this);
                 threadOnline.start();
             }
-
-
-        } catch (UnknownHostException e){
-            gui.addMsg_online("Connexion à "+host+":"+port+" échouée.");
+        } catch (UnknownHostException e) {
+            gui.addMsg_online("Connexion à " + host + ":" + port + " échouée.");
             popUpconnexionEchoue(host, port);
-        } catch (IOException e){
-            gui.addMsg_online("Connexion à "+host+":"+port+" échouée.");
+        } catch (IOException e) {
+            gui.addMsg_online("Connexion à " + host + ":" + port + " échouée.");
             popUpconnexionEchoue(host, port);
             e.printStackTrace();
         }
     }
 
+    /**
+     * Fonction du processus de communication entre le serveur et le joueur.
+     */
     @Override
-    public void run(){
-        while(threadOnline != null){
+    public void run() {
+        while (threadOnline != null) {
             try {
                 String input = entreeOnline.readUTF();
                 String[] cmd = input.split("\\s+");
+
                 if (Integer.parseInt(cmd[0]) < 10) { // info case à afficher
                     int x = Integer.parseInt(cmd[1]);
                     int y = Integer.parseInt(cmd[2]);
@@ -255,30 +303,33 @@ public class Demineur extends JFrame implements Runnable{
                             setLost(true);
                             perdu();
                             gui.addMsg_online("Partie perdue.");
-                        } else if (Integer.parseInt(cmd[3]) != numJoueur){
+                        } else if (Integer.parseInt(cmd[3]) != numJoueur) {
                             gui.addMsg_online("Le joueur " + cmd[3] + " a perdu.");
                         }
-                        nbJoueursEnCours -- ;
+                        nbJoueursEnCours--;
                     }
+
                 } else if (Integer.parseInt(cmd[0]) == START) { // info début partie
                     relancer(Level.valueOf(cmd[2]));
                     nbJoueursEnCours = Integer.parseInt(cmd[1]);
                     gui.addMsg_online("Démarrage partie.");
                     gui.initScore(nbJoueursEnCours);
                     start();
-                } else if (Integer.parseInt(cmd[0]) == QUIT){ //un joueur a quitté la partie
-                    if (Integer.parseInt(cmd[1]) != numJoueur){
-                        if (Integer.parseInt(cmd[1]) == 0){
+
+                } else if (Integer.parseInt(cmd[0]) == QUIT) { //info un joueur a quitté la partie
+                    if (Integer.parseInt(cmd[1]) != numJoueur) {
+                        if (Integer.parseInt(cmd[1]) == 0) {
                             serveurDeconnecte();
                             gui.addMsg_online("La partie a été coupé par le serveur.");
                         } else {
-                            nbJoueursEnCours -- ;
+                            nbJoueursEnCours--;
                             getGUI().updateScore(Integer.parseInt(cmd[1]), String.valueOf(QUIT), Color.WHITE);
                             gui.addMsg_online("Le joueur " + cmd[1] + " a quitté la partie.");
                         }
                     }
-                } else if (Integer.parseInt((cmd[0])) == FINISH) { //fin de partie
-                    if (Integer.parseInt(cmd[1]) == numJoueur){
+
+                } else if (Integer.parseInt((cmd[0])) == FINISH) { //info fin de partie
+                    if (Integer.parseInt(cmd[1]) == numJoueur) {
                         setWon(true);
                         gagne(Integer.parseInt(cmd[2]));
                         gui.addMsg_online("Bravo! T'as gagné.");
@@ -286,30 +337,45 @@ public class Demineur extends JFrame implements Runnable{
                         gui.addMsg_online("Le joueur " + cmd[1] + " a gagné avec un score de " + cmd[2] + ".");
                     }
                 }
+
             } catch (IOException e) {
                 e.printStackTrace();
             }
         }
     }
 
-    private void popUpconnexionReussie(String host, String port, int numJoueur){
+    /**
+     * Fonction déclenchée quand la connexion au serveur a réussi.
+     * @param host Adresse du serveur.
+     * @param port Port du serveur.
+     * @param numJoueur Numéro du joueur attribué par le serveur.
+     */
+    private void popUpconnexionReussie(String host, String port, int numJoueur) {
         JOptionPane.showConfirmDialog(null,
-                "Tu es bien connecté sur "+host+":"+port+".\n" +
-                        "Tu es le joueur numéro "+numJoueur+".",
+                "Tu es bien connecté sur " + host + ":" + port + ".\n" +
+                        "Tu es le joueur numéro " + numJoueur + ".",
                 "Connexion réussie",
                 JOptionPane.DEFAULT_OPTION,
                 JOptionPane.INFORMATION_MESSAGE);
     }
 
-    private void popUpconnexionEchoue(String host, String port){
+    /**
+     * Fonction déclenchée quand la connexion au serveur a échoué".
+     * @param host Adresse du serveur.
+     * @param port Port du serveur.
+     */
+    private void popUpconnexionEchoue(String host, String port) {
         JOptionPane.showConfirmDialog(null,
-                "La connexion à "+host+":"+port+" a échoué...",
+                "La connexion à " + host + ":" + port + " a échoué...",
                 "Connexion échouée",
                 JOptionPane.DEFAULT_OPTION,
                 JOptionPane.ERROR_MESSAGE);
     }
 
-    public void deconnexionServeur(){
+    /**
+     * Fonction permettant de se déconnecter d'un serveur.
+     */
+    public void deconnexionServeur() {
         try {
             sortieOnline.writeUTF(String.valueOf(QUIT));
             gui.addMsg_online("Déconnexion réussie");
@@ -319,7 +385,7 @@ public class Demineur extends JFrame implements Runnable{
                     "Déconnexion réussie",
                     JOptionPane.DEFAULT_OPTION,
                     JOptionPane.INFORMATION_MESSAGE);
-        } catch (IOException e){
+        } catch (IOException e) {
             JOptionPane.showConfirmDialog(null,
                     "Tu n'as pas été déconnecté.",
                     "Déconnexion échouée",
@@ -330,7 +396,11 @@ public class Demineur extends JFrame implements Runnable{
         }
     }
 
-    private void quitCo(){
+    /**
+     * Fonction déclenchant après la déconnexion d'un serveur,
+     * permettant de détruire les canaux de communication audit serveur.
+     */
+    private void quitCo() {
         connected = false;
         try {
             gui.boutonOnline.setText("Connexion");
@@ -338,7 +408,7 @@ public class Demineur extends JFrame implements Runnable{
             entreeOnline.close();
             sortieOnline.close();
             sock.close();
-        } catch (IOException e){
+        } catch (IOException e) {
             e.printStackTrace();
         }
     }
