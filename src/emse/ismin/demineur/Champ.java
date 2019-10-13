@@ -46,14 +46,14 @@ public class Champ {
         this(Level.EASY);
     }
 
-    /**
+    /** Constructeur avec un niveau en paramètre.
      * @param level Level.EASY, Level.MEDIUM ou Level.HARD.
      */
     public Champ(Level level) {
         newPartie(level);
     }
 
-    /**
+    /** Constructeur avec des dimensions et nombre de mines en paramètres.
      * @param dim_x    dimension horizontale.
      * @param dim_y    dimension verticale.
      * @param nb_mines nombre de mines.
@@ -91,6 +91,10 @@ public class Champ {
         renouvelleChamp();
     }
 
+    /**
+     * Fonction initialisant le champ selon le niveau renseigné.
+     * @param level niveau de l partie.
+     */
     public void newPartie(Level level){
         this.level = level;
         nbClick = 0;
@@ -105,6 +109,9 @@ public class Champ {
         }
     }
 
+    /**
+     * Fonction réinitialisant le champ.
+     */
     public void renouvelleChamp(){
         nbClick = 0;
         champVide();
