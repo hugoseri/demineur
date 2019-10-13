@@ -5,6 +5,9 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
+/**
+ * Classe de l'interface du serveur.
+ */
 public class GUIServeur extends JPanel implements ActionListener {
 
     private Serveur serveur;
@@ -59,17 +62,25 @@ public class GUIServeur extends JPanel implements ActionListener {
         add(boutons, BorderLayout.SOUTH);
     }
 
+    /**
+     * Fonction permettant de lancer des opérations en fonction d'élements cliqués sur l'interface.
+     * @param e
+     */
     @Override
     public void actionPerformed(ActionEvent e) {
         Object source = e.getSource();
-        if (startServeurButton.equals(source)){
+        if (startServeurButton.equals(source)){ // clic démarrer serveur
             serveur.broadcastRedemarrageServeur();
             serveur.startServeur();
-        }else if (startGameButton.equals(source) && serveur.serveurOn){
+        }else if (startGameButton.equals(source) && serveur.serveurOn){ // clic démarrer partie + serveur démarré
             serveur.newGame();
         }
     }
 
+    /**
+     * Fonction permettant d'ajouter un message dans la partie dialogue.
+     * @param msg Message à ajouter.
+     */
     public void addMsg(String msg){
         messages.append(msg+'\n');
         scrollBar.getVerticalScrollBar().setValue(scrollBar.getVerticalScrollBar().getMaximum());
