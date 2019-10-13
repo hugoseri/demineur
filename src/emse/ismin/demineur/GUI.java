@@ -258,41 +258,48 @@ public class GUI extends JPanel implements ActionListener {
         add(south, BorderLayout.SOUTH);
     }
 
+    /**
+     * Fonction permettant de lancer des opérations en fonction d'élements cliqués sur l'interface.
+     * @param e
+     */
     @Override
     public void actionPerformed(ActionEvent e) {
         Object source = e.getSource();
-        if (boutonQuitter.equals(source) && !main.connected) {
+        if (boutonQuitter.equals(source) && !main.connected) { //clic bouton quitter + hors ligne
             main.quit();
-        } else if (mQuitter.equals(source) && !main.connected) {
+        } else if (mQuitter.equals(source) && !main.connected) { //clic bouton quitter + en ligne
             main.quit();
-        } else if (boutonRelancer.equals(source) && !main.connected) {
+        } else if (boutonRelancer.equals(source) && !main.connected) { //clic bouton relancer partie + hors ligne
             main.relancer();
-        } else if (boutonOnline.equals(source)) {
-            if (!main.connected) {
+        } else if (boutonOnline.equals(source)) { // clic bouton connexion/déconnexion
+            if (!main.connected) { // cas hors ligne
                 main.connexionServeur(host.getText(), port.getText(), pseudo.getText());
                 if (main.connected) {
                     boutonOnline.setText("Déconnexion");
                 }
-            } else {
+            } else { // cas en ligne
                 main.deconnexionServeur();
                 boutonOnline.setText("Connexion");
             }
-        } else if (mAPropos.equals(source)) {
+        } else if (mAPropos.equals(source)) { // clic bouton à propos dans menu
             JOptionPane.showConfirmDialog(null,
                     "Créé par Hugo !",
                     "A propos",
                     JOptionPane.DEFAULT_OPTION,
                     JOptionPane.INFORMATION_MESSAGE);
-        } else if (mFacile.equals(source) && !main.connected){
+        } else if (mFacile.equals(source) && !main.connected){ // clic bouton niveau facile + hors ligne
             main.relancer(Level.EASY);
-        } else if (mMoyen.equals(source) && !main.connected){
+        } else if (mMoyen.equals(source) && !main.connected){ // clic bouton niveau moyen + hors ligne
             main.relancer(Level.MEDIUM);
-        } else if (mDifficile.equals(source) && !main.connected){
+        } else if (mDifficile.equals(source) && !main.connected){ // clic bouton niveau difficile + hors ligne
             main.relancer(Level.HARD);
         }
     }
 
-
+    /**
+     * Fonction permettant d'initialiser le scores des joueurs (en ligne uniquement).
+     * @param nb_joueurs Nombre de joueurs dans la partie.
+     */
     public void initScore(int nb_joueurs){
         liste_scores = new ArrayList<>();
 
@@ -315,6 +322,12 @@ public class GUI extends JPanel implements ActionListener {
         main.pack();
     }
 
+    /**
+     * Fonction permettant de mettre à jour le score d'un joueur (en ligne uniquement).
+     * @param nb_joueur Numéro du joueur.
+     * @param value Valeur du score.
+     * @param color Couleur du joueur.
+     */
     public void updateScore(int nb_joueur, String value, Color color){
         JTextArea score = liste_scores.get(nb_joueur - 1);
         score.setBackground(color);
@@ -336,7 +349,10 @@ public class GUI extends JPanel implements ActionListener {
         main.pack();
     }
 
-
+    /**
+     * Fonction permettant d'ajouter un message dans la partie dialogue.
+     * @param msg Message à ajouter.
+     */
     public void addMsg_online(String msg){
         infos_jeu.append(msg+"\n");
         scrollBar_online.getVerticalScrollBar().setValue(scrollBar_online.getVerticalScrollBar().getMaximum());
