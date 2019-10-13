@@ -42,6 +42,9 @@ public class Compteur extends JPanel implements Runnable {
         drawCenteredString(gc, "Temps écoulé : "+String.valueOf(valCompteur), 0, 0, getWidth(), getHeight(), font);
     }
 
+    /**
+     * Fonction initialisant et déclenchant le compteur.
+     */
     public void startCompteur(){
         valCompteur = 0;
 
@@ -49,15 +52,24 @@ public class Compteur extends JPanel implements Runnable {
         processScore.start();
     }
 
+    /**
+     * Fonction arrêtant le compteur.
+     */
     public void stopCompteur(){
         processScore = null;
     }
 
+    /**
+     * Fonction réinitialisant le compteur.
+     */
     public void resetCompteur(){
         valCompteur = 0;
         repaint();
     }
 
+    /**
+     * Fonction incrémentant le compteur chaque seconde.
+     */
     @Override
     public void run(){
         while (processScore != null){
@@ -73,7 +85,11 @@ public class Compteur extends JPanel implements Runnable {
         }
     }
 
-
+    /**
+     * Fonction de gestion de la couleur de fond du compteur en fonction de sa valeur.
+     * @param valeurCompteur valeur du compteur.
+     * @return color couleur du fond du compteur.
+     */
     private Color getColor(int valeurCompteur){
         Color color;
         if (valeurCompteur == 0) {
