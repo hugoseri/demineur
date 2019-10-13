@@ -154,8 +154,10 @@ public class Champ {
     /**
      * Fonction permettant de compter le nombre de mines autour d'un point du champ.
      *
-     * @param x
-     * @param y
+     * @param x coordonnée horizontale.
+     * @param y coordonnée verticale.
+     *
+     * @return entier correspondant au nombre de mines autour de la case en paramètre.
      */
     public int minesAutour(int x, int y) {
         if (x > monChamp.length || x < 0 || x > monChamp[0].length || y < 0) {
@@ -181,9 +183,9 @@ public class Champ {
     /**
      * Fonction retournant si une case est une mine.
      *
-     * @param x
-     * @param y
-     * @return booléen true or false.
+     * @param x coordonnée horizontale.
+     * @param y coordonnée horizontale.
+     * @return booléen si la case est une mine ou non.
      */
     public boolean isMine(int x, int y) {
         return monChamp[x][y];

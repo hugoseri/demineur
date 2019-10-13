@@ -260,7 +260,7 @@ public class GUI extends JPanel implements ActionListener {
 
     /**
      * Fonction permettant de lancer des opérations en fonction d'élements cliqués sur l'interface.
-     * @param e
+     * @param e Objet ActionEvent.
      */
     @Override
     public void actionPerformed(ActionEvent e) {

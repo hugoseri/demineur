@@ -55,6 +55,11 @@ public class Case extends JPanel implements MouseListener {
     }
 
 
+    /**
+     * Fonction lancée par repaint() rafraîchissant la case.
+     *
+     * @param gc Objet Graphics.
+     */
     @Override
     public void paintComponent(Graphics gc) {
         super.paintComponent(gc);
@@ -86,15 +91,15 @@ public class Case extends JPanel implements MouseListener {
     }
 
     /**
-     * Draw a centered string.
+     * Dessine un string centré.
      *
-     * @param g
-     * @param text
-     * @param rect_x
-     * @param rect_y
-     * @param rect_width
-     * @param rect_height
-     * @param font
+     * @param g           Objet Graphics de PaintComponent.
+     * @param text        texte à centrer.
+     * @param rect_x      début du rectangle selon x.
+     * @param rect_y      début du rectangle selon y.
+     * @param rect_width  largeur du rectangle.
+     * @param rect_height hauteur du rectangle.
+     * @param font        police d'affichage.
      */
     public static void drawCenteredString(Graphics g, String text, int rect_x, int rect_y, int rect_width, int rect_height, Font font) {
         // Get the FontMetrics
@@ -109,6 +114,12 @@ public class Case extends JPanel implements MouseListener {
         g.drawString(text, x, y);
     }
 
+    /**
+     * Fonction permettant de révéler le contenu d'une case.
+     *
+     * @param type  type de la case (9 = mine, [0,8] = nombre de mines autour).
+     * @param color couleur de la case.
+     */
     public void showCase(int type, Color color) {
         click = true;
         type_case = type;
@@ -116,11 +127,21 @@ public class Case extends JPanel implements MouseListener {
         repaint();
     }
 
+    /**
+     * Fonction permettant d'afficher une case non révélée.
+     *
+     * @param gc Objet Graphics.
+     */
     private void showUnknown(Graphics gc) {
         gc.setColor(new Color(COULEUR_NEUTRE)); //couleur background
         gc.fillRect(1, 1, getWidth(), getHeight());
     }
 
+    /**
+     * Fonction permettant d'afficher une case de type mine.
+     *
+     * @param gc Objet Graphics.
+     */
     private void showMine(Graphics gc) {
         Color bg_color = new Color(COULEUR_MINE); //couleur background
         gc.setColor(bg_color);
@@ -133,6 +154,13 @@ public class Case extends JPanel implements MouseListener {
         }
     }
 
+    /**
+     * Fonction permettant d'afficher une case de type non mine (hors ligne).
+     *
+     * @param gc        Objet Graphics.
+     * @param type_case Nombre de mines autour de la case.
+     * @param font      Police d'affichage.
+     */
     public void showNotMine(Graphics gc, int type_case, Font font) {
         Color bg_color = new Color(getColor(type_case)); //couleur background
         gc.setColor(bg_color);
@@ -143,6 +171,14 @@ public class Case extends JPanel implements MouseListener {
         }
     }
 
+    /**
+     * Fonction permettant d'afficher une case de type non mine (en ligne).
+     *
+     * @param gc        Objet Graphics.
+     * @param type_case Nombre de mines autour de la case.
+     * @param font      Police d'affichage.
+     * @param bg_color  Couleur de fond de la case.
+     */
     public void showNotMine(Graphics gc, int type_case, Font font, Color bg_color) {
         gc.setColor(bg_color);
         gc.fillRect(1, 1, getWidth(), getHeight());
@@ -156,6 +192,11 @@ public class Case extends JPanel implements MouseListener {
     public void mouseClicked(MouseEvent e) {
     }
 
+    /**
+     * Fonction déclenchée quand un joueur clique sur la case.
+     *
+     * @param e Objet MouseEvent.
+     */
     @Override
     public void mousePressed(MouseEvent e) {
 
@@ -203,6 +244,12 @@ public class Case extends JPanel implements MouseListener {
     public void mouseExited(MouseEvent e) {
     }
 
+    /**
+     * Fonction permettant d'obtenir le fond de la case en fonction de son type.
+     *
+     * @param valeurCase valeur de la case.
+     * @return un entier correspondant à une couleur en héxadécimal.
+     */
     private int getColor(int valeurCase) {
         int color;
         switch (valeurCase) {

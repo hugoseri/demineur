@@ -18,7 +18,7 @@ public class PanelChamp extends JPanel {
     /**
      * Fonction permettant de remplir le champ de cases.
      *
-     * @param main
+     * @param main Demineur dans lequel est le panelChamp.
      */
     public void placeCases(Demineur main) {
         setLayout(new GridLayout(main.getChamp().getDimX(), main.getChamp().getDimY()));

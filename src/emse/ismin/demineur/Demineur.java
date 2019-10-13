@@ -114,7 +114,7 @@ public class Demineur extends JFrame implements Runnable {
     /**
      * Fonction main.
      *
-     * @param args
+     * @param args argument de la fonction main.
      */
     public static void main(String[] args) {
         System.out.println("");
