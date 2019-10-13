@@ -11,6 +11,9 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 
+/**
+ * Class Serveur permettant de gérer les parties en réseau.
+ */
 public class Serveur extends JFrame implements Runnable {
 
     private static final String FILENAME = "files/historique.txt";
@@ -64,6 +67,9 @@ public class Serveur extends JFrame implements Runnable {
 
     }
 
+    /**
+     * Fonction permettant de démarrer le serveur en réinitialisant tous ces paramètres.
+     */
     public void startServeur() {
         guiServeur.addMsg("Démarrage serveur.");
         guiServeur.addMsg("Attente des joueurs.");
@@ -88,6 +94,9 @@ public class Serveur extends JFrame implements Runnable {
         }
     }
 
+    /**
+     * Fonction permettant de gérer la communication avec des joueurs (clients).
+     */
     @Override
     public void run() {
         try {
@@ -107,7 +116,7 @@ public class Serveur extends JFrame implements Runnable {
             //lecture donnée client
             String nomJoueur = in.readUTF();
 
-            if (!partieCommencee) {
+            if (!partieCommencee) { // si la partie n'est pas commencée, on accepte la connexion
 
                 guiServeur.addMsg(nomJoueur + " est connecté.");
 
@@ -132,22 +141,24 @@ public class Serveur extends JFrame implements Runnable {
                 listInputs.add(in);
                 listOutputs.add(out);
 
-                while (joueurConnecte && serveurOn) {
+                while (joueurConnecte && serveurOn) { // boucle tant que le joueur est connecté et le serveur n'est pas redémarré.
                     try {
-                        if (partieCommencee && !partieTerminee && aGagne(idJoueur)) {
+                        if (partieCommencee && !partieTerminee && aGagne(idJoueur)) { // partie gagnée
                             partieTerminee = true;
                             partieCommencee = false;
                             scoreGagnant = etatJoueurs.get(idJoueur - 1);
                             etatJoueurs.set(idJoueur - 1, GAGNE);
                             guiServeur.addMsg(nomJoueur + " a gagné !");
-                        } else {
+                        } else { // partie en cours
                             String[] input = in.readUTF().split("\\s+");
-                            if (Integer.parseInt(input[0]) == Demineur.PLAYED) {
+
+                            if (Integer.parseInt(input[0]) == Demineur.PLAYED) { // joueur clique sur une case
                                 if (!champJeu.isMine(Integer.parseInt(input[1]), Integer.parseInt(input[2]))) {
                                     etatJoueurs.set(idJoueur - 1, etatJoueurs.get(idJoueur - 1) + 1);
                                 }
                                 broadcastCaseCliquee(input, idJoueur, rgb);
-                            } else if (Integer.parseInt(input[0]) == Demineur.QUIT) {
+
+                            } else if (Integer.parseInt(input[0]) == Demineur.QUIT) { // joueur quitte le jeu
                                 joueurConnecte = false;
                                 listThreads.remove(myThread);
                                 listInputs.remove(in);
@@ -167,7 +178,7 @@ public class Serveur extends JFrame implements Runnable {
                         e.printStackTrace();
                     }
                 }
-            } else {
+            } else { // si la partie est déjà commencée on refuse le joueur.
                 out.writeInt(Demineur.REFUSE);
                 guiServeur.addMsg(nomJoueur + " a tenté de rejoindre, trop tard!");
                 myThread = null;
@@ -180,6 +191,9 @@ public class Serveur extends JFrame implements Runnable {
         }
     }
 
+    /**
+     * Fonction permettant d'envoyer à tous les joueurs que le serveur redémarre (déconnecte tous les joueurs).
+     */
     public void broadcastRedemarrageServeur() {
         for (DataOutputStream sortie : listOutputs) {
             try {
@@ -192,6 +206,11 @@ public class Serveur extends JFrame implements Runnable {
         }
     }
 
+    /**
+     * Fonction permettant d'envoyer à tous les joueurs qu'un joueur quitte le jeu.
+     *
+     * @param numJoueur numéro du joueur qui quitte.
+     */
     private void broadcastJoueurQuitte(int numJoueur) {
         etatJoueurs.set(numJoueur - 1, QUITTE);
         guiServeur.addMsg("Le joueur " + numJoueur + " a quitté la partie.");
@@ -206,6 +225,9 @@ public class Serveur extends JFrame implements Runnable {
         }
     }
 
+    /**
+     * Fonction permettant d'envoyer à tous les joueurs le gagnant de la partie.
+     */
     private void broadcastGagnant() {
         broadcastFinEnvoye = true;
         updateFile();
@@ -220,6 +242,13 @@ public class Serveur extends JFrame implements Runnable {
         }
     }
 
+    /**
+     * Fonction permettant d'envoyer à tous les joueurs qu'une case a été cliquée par un joueur.
+     *
+     * @param caseCliquee coordonnées (x, y) de la case cliquée.
+     * @param numJoueur   numéro du joueur ayant cliqué.
+     * @param rgb         couleur du joueur ayant cliqué (couleur à afficher sur la case cliquée).
+     */
     synchronized private void broadcastCaseCliquee(String[] caseCliquee, int numJoueur, String rgb) {
         for (DataOutputStream sortie : listOutputs) {
             try {
@@ -232,6 +261,18 @@ public class Serveur extends JFrame implements Runnable {
         }
     }
 
+    /**
+     * Fonction renvoyant un message contenuant les informations nécessaires pour communiquer aux joueurs:
+     * - quelle case a été cliquée,
+     * - par qui,
+     * - quel type de case c'est (mine, si pas mine, nombre de mines autour),
+     * - la couleur de la case cliquée à afficher.
+     *
+     * @param caseCliquee coordonnées (x, y) de la case cliquée.
+     * @param numJoueur   numéro du joueur ayant cliqué.
+     * @param rgb         couleur du joueur ayant cliquée (couleur à afficher sur la case cliquée).
+     * @return message renseignant les informations sur la case cliquée.
+     */
     private String codeCase(String[] caseCliquee, int numJoueur, String rgb) {
         int x = Integer.parseInt(caseCliquee[1]);
         int y = Integer.parseInt(caseCliquee[2]);
@@ -246,6 +287,12 @@ public class Serveur extends JFrame implements Runnable {
         return msg;
     }
 
+    /**
+     * Fonction permettant de tester si un joueur a gagné la partie.
+     *
+     * @param numJoueur numéro du joueur.
+     * @return booléen informant si le joueur a gagné.
+     */
     private boolean aGagne(int numJoueur) {
         boolean victoire = true;
 
@@ -259,6 +306,11 @@ public class Serveur extends JFrame implements Runnable {
         return victoire;
     }
 
+    /**
+     * Fonction permettant de savoir quel joueur a gagné.
+     *
+     * @return le numéro du joueur qui a gagné.
+     */
     private int getGagnant() {
         int numGagnant = 0;
         int i = 0;
@@ -271,6 +323,9 @@ public class Serveur extends JFrame implements Runnable {
         return numGagnant + 1;
     }
 
+    /**
+     * Fonction  permettant de détruire les canaux de communication avec tous les joueurs (quand le serveur rédemarre).
+     */
     private void quit() {
         serveurOn = false;
         partieTerminee = true;
@@ -308,6 +363,9 @@ public class Serveur extends JFrame implements Runnable {
         }
     }
 
+    /**
+     * Fonction permettant de lancer une nouvelle partie.
+     */
     public void newGame() {
 
         DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss");
@@ -341,6 +399,9 @@ public class Serveur extends JFrame implements Runnable {
         }
     }
 
+    /**
+     * Fonction permettant d'enregistrer dans un fichier les informations d'une partie.
+     */
     public void updateFile() {
         try {
             BufferedWriter writer = new BufferedWriter(new FileWriter(FILENAME, true));
@@ -354,7 +415,6 @@ public class Serveur extends JFrame implements Runnable {
                     i++;
                 }
             }
-
             writer.write("\n");
             writer.close();
         } catch (IOException e) {

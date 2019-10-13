@@ -35,13 +35,13 @@ public class Case extends JPanel implements MouseListener {
 
     private boolean click = false;
 
-    private int type_case=10;
+    private int type_case = 10;
 
-    public boolean isClicked(){
+    public boolean isClicked() {
         return click;
     }
 
-    public Case(int x, int y,  Demineur demineur){
+    public Case(int x, int y, Demineur demineur) {
         this.demineur = demineur;
         this.x = x;
         this.y = y;
@@ -49,17 +49,22 @@ public class Case extends JPanel implements MouseListener {
         addMouseListener(this);
     }
 
-    public void newPartie(){
+    public void newPartie() {
         click = false;
         repaint();
     }
 
 
+    /**
+     * Fonction lancée par repaint() rafraîchissant la case.
+     *
+     * @param gc Objet Graphics.
+     */
     @Override
-    public void paintComponent(Graphics gc){
+    public void paintComponent(Graphics gc) {
         super.paintComponent(gc);
 
-        Font font = new Font("Arial", Font.PLAIN, getHeight()/3);
+        Font font = new Font("Arial", Font.PLAIN, getHeight() / 3);
         gc.setFont(font);
 
         if (!demineur.connected) {
@@ -75,9 +80,9 @@ public class Case extends JPanel implements MouseListener {
                 showUnknown(gc);
             }
         } else {
-            if (type_case == 9){ //mine
+            if (type_case == 9) { //mine
                 showMine(gc);
-            } else if (type_case < 9){ //pas mine
+            } else if (type_case < 9) { //pas mine
                 showNotMine(gc, type_case, font, color_case);
             } else { //on ne sait pas, état initial
                 showUnknown(gc);
@@ -86,14 +91,15 @@ public class Case extends JPanel implements MouseListener {
     }
 
     /**
-     * Draw a centered string.
-     * @param g
-     * @param text
-     * @param rect_x
-     * @param rect_y
-     * @param rect_width
-     * @param rect_height
-     * @param font
+     * Dessine un string centré.
+     *
+     * @param g           Objet Graphics de PaintComponent.
+     * @param text        texte à centrer.
+     * @param rect_x      début du rectangle selon x.
+     * @param rect_y      début du rectangle selon y.
+     * @param rect_width  largeur du rectangle.
+     * @param rect_height hauteur du rectangle.
+     * @param font        police d'affichage.
      */
     public static void drawCenteredString(Graphics g, String text, int rect_x, int rect_y, int rect_width, int rect_height, Font font) {
         // Get the FontMetrics
@@ -108,19 +114,35 @@ public class Case extends JPanel implements MouseListener {
         g.drawString(text, x, y);
     }
 
-    public void showCase(int type, Color color){
+    /**
+     * Fonction permettant de révéler le contenu d'une case.
+     *
+     * @param type  type de la case (9 = mine, [0,8] = nombre de mines autour).
+     * @param color couleur de la case.
+     */
+    public void showCase(int type, Color color) {
         click = true;
         type_case = type;
         color_case = color;
         repaint();
     }
 
-    private void showUnknown(Graphics gc){
+    /**
+     * Fonction permettant d'afficher une case non révélée.
+     *
+     * @param gc Objet Graphics.
+     */
+    private void showUnknown(Graphics gc) {
         gc.setColor(new Color(COULEUR_NEUTRE)); //couleur background
         gc.fillRect(1, 1, getWidth(), getHeight());
     }
 
-    private void showMine(Graphics gc){
+    /**
+     * Fonction permettant d'afficher une case de type mine.
+     *
+     * @param gc Objet Graphics.
+     */
+    private void showMine(Graphics gc) {
         Color bg_color = new Color(COULEUR_MINE); //couleur background
         gc.setColor(bg_color);
         gc.fillRect(1, 1, getWidth(), getHeight());
@@ -132,7 +154,14 @@ public class Case extends JPanel implements MouseListener {
         }
     }
 
-    public void showNotMine(Graphics gc, int type_case, Font font){
+    /**
+     * Fonction permettant d'afficher une case de type non mine (hors ligne).
+     *
+     * @param gc        Objet Graphics.
+     * @param type_case Nombre de mines autour de la case.
+     * @param font      Police d'affichage.
+     */
+    public void showNotMine(Graphics gc, int type_case, Font font) {
         Color bg_color = new Color(getColor(type_case)); //couleur background
         gc.setColor(bg_color);
         gc.fillRect(1, 1, getWidth(), getHeight());
@@ -142,7 +171,15 @@ public class Case extends JPanel implements MouseListener {
         }
     }
 
-    public void showNotMine(Graphics gc, int type_case, Font font, Color bg_color){
+    /**
+     * Fonction permettant d'afficher une case de type non mine (en ligne).
+     *
+     * @param gc        Objet Graphics.
+     * @param type_case Nombre de mines autour de la case.
+     * @param font      Police d'affichage.
+     * @param bg_color  Couleur de fond de la case.
+     */
+    public void showNotMine(Graphics gc, int type_case, Font font, Color bg_color) {
         gc.setColor(bg_color);
         gc.fillRect(1, 1, getWidth(), getHeight());
         gc.setColor(Color.BLACK); //couleur texte
@@ -155,12 +192,17 @@ public class Case extends JPanel implements MouseListener {
     public void mouseClicked(MouseEvent e) {
     }
 
+    /**
+     * Fonction déclenchée quand un joueur clique sur la case.
+     *
+     * @param e Objet MouseEvent.
+     */
     @Override
-    public void mousePressed(MouseEvent e){
+    public void mousePressed(MouseEvent e) {
 
-        if (demineur.connected && !demineur.isLost() && !demineur.isWon() && !click){
+        if (demineur.connected && !demineur.isLost() && !demineur.isWon() && !click) {
             try {
-                demineur.sortieOnline.writeUTF(Demineur.PLAYED+ " " + x + " " + y);
+                demineur.sortieOnline.writeUTF(Demineur.PLAYED + " " + x + " " + y);
             } catch (IOException ex) {
                 ex.printStackTrace();
             }
@@ -202,9 +244,15 @@ public class Case extends JPanel implements MouseListener {
     public void mouseExited(MouseEvent e) {
     }
 
-    private int getColor(int valeurCase){
+    /**
+     * Fonction permettant d'obtenir le fond de la case en fonction de son type.
+     *
+     * @param valeurCase valeur de la case.
+     * @return un entier correspondant à une couleur en héxadécimal.
+     */
+    private int getColor(int valeurCase) {
         int color;
-        switch(valeurCase){
+        switch (valeurCase) {
             case 0:
                 color = COULEUR_0;
                 break;

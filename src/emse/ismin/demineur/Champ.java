@@ -36,7 +36,7 @@ public class Champ {
 
     int nbClick;
 
-    public boolean isWon(){
+    public boolean isWon() {
         return nbClick == getDimX() * getDimY() - nb_mines;
     }
 
@@ -47,6 +47,8 @@ public class Champ {
     }
 
     /**
+     * Constructeur avec un niveau en paramètre.
+     *
      * @param level Level.EASY, Level.MEDIUM ou Level.HARD.
      */
     public Champ(Level level) {
@@ -54,6 +56,8 @@ public class Champ {
     }
 
     /**
+     * Constructeur avec des dimensions et nombre de mines en paramètres.
+     *
      * @param dim_x    dimension horizontale.
      * @param dim_y    dimension verticale.
      * @param nb_mines nombre de mines.
@@ -64,18 +68,18 @@ public class Champ {
     }
 
     /**
-     *
      * @return longueur du champ.
      */
-    public int getDimX(){
+    public int getDimX() {
         return monChamp.length;
     }
 
     /**
-     *
      * @return largeur du champ.
      */
-    public int getDimY(){ return monChamp[0].length; }
+    public int getDimY() {
+        return monChamp[0].length;
+    }
 
     /**
      * Fonction initialisant le champ de mines.
@@ -91,7 +95,12 @@ public class Champ {
         renouvelleChamp();
     }
 
-    public void newPartie(Level level){
+    /**
+     * Fonction initialisant le champ selon le niveau renseigné.
+     *
+     * @param level niveau de l partie.
+     */
+    public void newPartie(Level level) {
         this.level = level;
         nbClick = 0;
         if (level == EASY) {
@@ -105,7 +114,10 @@ public class Champ {
         }
     }
 
-    public void renouvelleChamp(){
+    /**
+     * Fonction réinitialisant le champ.
+     */
+    public void renouvelleChamp() {
         nbClick = 0;
         champVide();
         placeMines(nb_mines);
@@ -142,8 +154,10 @@ public class Champ {
     /**
      * Fonction permettant de compter le nombre de mines autour d'un point du champ.
      *
-     * @param x
-     * @param y
+     * @param x coordonnée horizontale.
+     * @param y coordonnée verticale.
+     *
+     * @return entier correspondant au nombre de mines autour de la case en paramètre.
      */
     public int minesAutour(int x, int y) {
         if (x > monChamp.length || x < 0 || x > monChamp[0].length || y < 0) {
@@ -168,11 +182,12 @@ public class Champ {
 
     /**
      * Fonction retournant si une case est une mine.
-     * @param x
-     * @param y
-     * @return booléen true or false.
+     *
+     * @param x coordonnée horizontale.
+     * @param y coordonnée horizontale.
+     * @return booléen si la case est une mine ou non.
      */
-    public boolean isMine(int x, int y){
+    public boolean isMine(int x, int y) {
         return monChamp[x][y];
     }
 
