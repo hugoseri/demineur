@@ -1,3 +1,4 @@
 Manifest-Version: 1.0
 Main-Class: emse.ismin.demineur.Demineur
+Class-Path: emse.ismin.demineur.Demineur
 
