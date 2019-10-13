@@ -36,7 +36,8 @@ Once downloaded, just run the jar files to play the game (you need at least java
 #### How to install Java 12
 Follow one of these guides to install java 12 version on your machine:
 * [For Ubuntu users](http://ubuntuhandbook.org/index.php/2019/03/install-oracle-java-12-ubuntu-18-04-16-04/),
-* [For Windows users](https://java.tutorials24x7.com/blog/how-to-install-openjdk-12-on-windows).
+* [For Windows users](https://java.tutorials24x7.com/blog/how-to-install-openjdk-12-on-windows),
+* [For MacOS users](https://docs.oracle.com/en/java/javase/12/install/installation-jdk-macos.html#GUID-2FE451B0-9572-4E38-A1A5-568B77B146DE).
 
 #### How to run a jar file :
 ```java -jar demineur.jar```
